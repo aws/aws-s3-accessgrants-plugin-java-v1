@@ -51,7 +51,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
     public interface Builder {
         S3AccessGrantsCachedCredentialsProviderImpl build();
         S3AccessGrantsCachedCredentialsProviderImpl buildWithAccountIdResolver();
-        S3AccessGrantsCachedCredentialsProviderImpl.Builder S3ControlAsyncClient(AWSS3Control S3ControlAsyncClient);
+        S3AccessGrantsCachedCredentialsProviderImpl.Builder s3ControlClient(AWSS3Control s3ControlClient);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder s3AccessGrantsCachedAccountIdResolver(S3AccessGrantsCachedAccountIdResolver s3AccessGrantsCachedAccountIdResolver);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder maxCacheSize(int maxCacheSize);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder cacheExpirationTimePercentage(int cacheExpirationTimePercentage);
@@ -77,7 +77,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
         }
 
         @Override
-        public S3AccessGrantsCachedCredentialsProviderImpl.Builder S3ControlAsyncClient(AWSS3Control s3ControlClient) {
+        public S3AccessGrantsCachedCredentialsProviderImpl.Builder s3ControlClient(AWSS3Control s3ControlClient) {
             this.s3ControlClient = s3ControlClient;
             return this;
         }

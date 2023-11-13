@@ -45,7 +45,7 @@ public class S3AccessGrantsCachedAccountIdResolver implements S3AccessGrantsAcco
     @VisibleForTesting
     S3AccessGrantsCachedAccountIdResolver(@NotNull AWSS3Control s3ControlClient) {
         if (s3ControlClient == null) {
-            throw new IllegalArgumentException("S3ControlAsyncClient is required");
+            throw new IllegalArgumentException("S3ControlClient is required");
         }
         this.s3ControlClient = s3ControlClient;
         this.maxCacheSize = DEFAULT_ACCOUNT_ID_MAX_CACHE_SIZE;

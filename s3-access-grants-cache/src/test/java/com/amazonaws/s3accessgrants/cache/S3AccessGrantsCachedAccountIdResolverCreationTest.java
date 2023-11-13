@@ -19,7 +19,7 @@ public class S3AccessGrantsCachedAccountIdResolverCreationTest {
     }
 
     @Test
-    public void create_DefaultResolver_without_S3ControlAsyncClient_via_Constructor() {
+    public void create_DefaultResolver_without_S3ControlClient_via_Constructor() {
         // Given
         s3ControlClient = null;
         // Then
@@ -45,7 +45,7 @@ public class S3AccessGrantsCachedAccountIdResolverCreationTest {
     }
 
     @Test
-    public void create_Resolver_without_S3ControlAsyncClient_via_Builder() {
+    public void create_Resolver_without_S3ControlClient_via_Builder() {
         // Given
         s3ControlClient = null;
         //Then

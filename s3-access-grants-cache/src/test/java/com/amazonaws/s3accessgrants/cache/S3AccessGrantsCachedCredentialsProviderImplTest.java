@@ -34,12 +34,13 @@ public class S3AccessGrantsCachedCredentialsProviderImplTest {
     static S3AccessGrantsCachedAccountIdResolver mockResolver = Mockito.mock(S3AccessGrantsCachedAccountIdResolver.class);
     static Credentials credentials;
 
+
     @Before
     public void setup() {
         cache = S3AccessGrantsCachedCredentialsProviderImpl.builder()
-                .S3ControlAsyncClient(s3ControlClient).build();
+                .s3ControlClient(s3ControlClient).build();
         cacheWithMockedAccountIdResolver = S3AccessGrantsCachedCredentialsProviderImpl.builder()
-                .S3ControlAsyncClient(s3ControlClient)
+                .s3ControlClient(s3ControlClient)
                 .s3AccessGrantsCachedAccountIdResolver(mockResolver)
                 .buildWithAccountIdResolver();
     }
