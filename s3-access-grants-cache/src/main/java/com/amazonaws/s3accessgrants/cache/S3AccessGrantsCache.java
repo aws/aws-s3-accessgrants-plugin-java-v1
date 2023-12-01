@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -141,12 +156,12 @@ public class S3AccessGrantsCache {
                 AWSCredentials sessionCredentials = new BasicSessionCredentials(accessGrantsCredentials.getAccessKeyId(),
                         accessGrantsCredentials.getSecretAccessKey(), accessGrantsCredentials.getSessionToken());
                 String accessGrantsTarget = getDataAccessResult.getMatchedGrantTarget();
-                if (accessGrantsTarget.endsWith("*")){
+                if (accessGrantsTarget.endsWith("*")) {
                     putValueInCache(cacheKey.toBuilder().s3Prefix(processMatchedGrantTarget(accessGrantsTarget)).build(), sessionCredentials, duration);
                 }
                 logger.debug("Successfully retrieved the credentials from Access Grants service");
                 return sessionCredentials;
-            } catch (AWSS3ControlException s3ControlException){
+            } catch (AWSS3ControlException s3ControlException) {
                 logger.error("Exception occurred while fetching the credentials: " + s3ControlException);
                 if (s3ControlException.getStatusCode()== 403) {
                     logger.debug("Caching the Access Denied request.");
@@ -198,10 +213,10 @@ public class S3AccessGrantsCache {
     private AWSCredentials searchKeyInCacheAtPrefixLevel (CacheKey cacheKey) {
         AWSCredentials cacheValue;
         String prefix = cacheKey.s3Prefix;
-        while (!prefix.equals("s3:")){
+        while (!prefix.equals("s3:")) {
             CacheKey key = cacheKey.toBuilder().s3Prefix(prefix).build();
             cacheValue = cache.getIfPresent(key);
-            if (cacheValue != null){
+            if (cacheValue != null) {
                 logger.debug("Successfully retrieved credentials from the cache.");
                 return cacheValue;
             }
@@ -218,9 +233,9 @@ public class S3AccessGrantsCache {
     private AWSCredentials searchKeyInCacheAtCharacterLevel (CacheKey cacheKey) {
         AWSCredentials cacheValue;
         String prefix = cacheKey.s3Prefix;
-        while (!prefix.equals("s3://")){
+        while (!prefix.equals("s3://")) {
             cacheValue = cache.getIfPresent(cacheKey.toBuilder().s3Prefix(prefix + "*").build());
-            if (cacheValue != null){
+            if (cacheValue != null) {
                 logger.debug("Successfully retrieved credentials from the cache.");
                 return cacheValue;
             }
@@ -246,14 +261,14 @@ public class S3AccessGrantsCache {
     /**
      * This method splits S3Prefix on last "/" and returns the first part.
      */
-    private String getNextPrefix(String prefix){
+    private String getNextPrefix(String prefix) {
         return prefix.substring(0, prefix.lastIndexOf("/"));
     }
 
     /**
      * This methods returns a substring of the string with last character removed.
      */
-    private String getNextPrefixByChar(String prefix){
+    private String getNextPrefixByChar(String prefix) {
         return prefix.substring(0, prefix.length()-1);
     }
 
@@ -278,7 +293,7 @@ public class S3AccessGrantsCache {
         cache.invalidateAll();
     }
 
-    public Cache getCache(){
+    public Cache getCache() {
         return cache;
     }
 

@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -44,7 +59,7 @@ public class S3AccessGrantsCacheTest {
     private S3AccessGrantsCachedAccountIdResolver mockResolver;
 
     @Before
-    public void setup(){
+    public void setup() {
         mockResolver = Mockito.mock(S3AccessGrantsCachedAccountIdResolver.class);
         s3ControlClient = Mockito.mock(AWSS3Control.class);
         cache = S3AccessGrantsCache.builder()
@@ -61,7 +76,7 @@ public class S3AccessGrantsCacheTest {
     }
 
     @After
-    public void clearCache(){
+    public void clearCache() {
         cache.invalidateCache();
         cacheWithMockedAccountIdResolver.invalidateCache();
         accessDeniedCache.invalidateCache();
@@ -237,7 +252,7 @@ public class S3AccessGrantsCacheTest {
         // When
         try {
             cacheWithMockedAccountIdResolver.getCredentials(key1, TEST_S3_ACCESSGRANTS_ACCOUNT, accessDeniedCache);
-        }catch (AWSS3ControlException e){}
+        }catch (AWSS3ControlException e) {}
         // Then
         assertThat(accessDeniedCache.getValueFromCache(key1)).isInstanceOf(AWSS3ControlException.class);
     }
