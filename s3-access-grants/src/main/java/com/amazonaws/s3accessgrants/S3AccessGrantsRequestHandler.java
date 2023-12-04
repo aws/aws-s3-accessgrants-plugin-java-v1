@@ -62,7 +62,7 @@ public class S3AccessGrantsRequestHandler {
                 .withCredentials(credentialsProvider)
                 .build();
         this.cacheImpl = S3AccessGrantsCachedCredentialsProviderImpl.builder()
-                .s3ControlClient(awsS3ControlClient).build();
+                .s3ControlClient(awsS3ControlClient).duration(duration).build();
     }
 
     @VisibleForTesting

@@ -17,6 +17,7 @@ package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3control.model.Permission;
+import com.sun.istack.internal.NotNull;
 
 import java.util.Objects;
 
@@ -25,7 +26,7 @@ public class CacheKey {
     final Permission permission;
     final String s3Prefix;
 
-    private CacheKey(AWSCredentials credentials, Permission permission, String s3Prefix) {
+    private CacheKey(@NotNull AWSCredentials credentials,@NotNull Permission permission,@NotNull String s3Prefix) {
 
         this.credentials = credentials;
         this.permission = permission;

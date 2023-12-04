@@ -24,6 +24,7 @@ public class S3AccessGrantsCacheConstants {
     public static final int DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE = 30_000;
     public static final int MAX_LIMIT_ACCESS_GRANTS_MAX_CACHE_SIZE = 1_000_000;
     public static final int CACHE_EXPIRATION_TIME_PERCENTAGE = 90;
+    public static final int DEFAULT_DURATION = 3_600;
 
     public static final int ACCESS_DENIED_CACHE_SIZE = 3_000;
 }
