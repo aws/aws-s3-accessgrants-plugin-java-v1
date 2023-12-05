@@ -17,8 +17,13 @@ package com.amazonaws.s3accessgrants.internal;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GetObjectAclRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.SetObjectAclRequest;
 import com.amazonaws.services.s3control.model.Permission;
 
 import java.util.HashMap;
@@ -32,12 +37,16 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("GETOBJECTACLREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("LISTMULTIPARTUPLOADSREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("LISTOBJECTSREQUEST", Permission.READ);
-        supportedAccessGrantsOperations.put("LISTOBJECTVERSIONSREQUEST", Permission.READ);
+        supportedAccessGrantsOperations.put("LISTOBJECTSV2REQUEST", Permission.READ);
+        supportedAccessGrantsOperations.put("LISTVERSIONSREQUEST", Permission.READ);
 
         supportedAccessGrantsOperations.put("PUTOBJECTREQUEST", Permission.WRITE);
-        supportedAccessGrantsOperations.put("PUTOBJECTACLREQUEST", Permission.WRITE);
+        supportedAccessGrantsOperations.put("SETOBJECTACLREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("DELETEOBJECTREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("ABORTMULTIPARTUPLOADREQUEST", Permission.WRITE);
+        supportedAccessGrantsOperations.put("CREATEMULTIPARTUPLOAD", Permission.WRITE);
+        supportedAccessGrantsOperations.put("UPLOADPART", Permission.WRITE);
+        supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOAD", Permission.WRITE);
 
         supportedAccessGrantsOperations.put("DECRYPTREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("GENERATEDATAKEYREQUEST", Permission.WRITE);
@@ -65,12 +74,38 @@ public class S3AccessGrantsStaticOperationDetails {
             s3Prefix = "s3://" + getObjectRequest.getBucketName() + "/" + getObjectRequest.getKey();
         }
         else if (request instanceof ListObjectsRequest) {
-            ListObjectsRequest getObjectRequest = (ListObjectsRequest) request;
-            if (getObjectRequest.getPrefix() == null) {
-                s3Prefix = "s3://" + getObjectRequest.getBucketName();
+            ListObjectsRequest listObjectsRequest = (ListObjectsRequest) request;
+            if (listObjectsRequest.getPrefix() == null) {
+                s3Prefix = "s3://" + listObjectsRequest.getBucketName();
             } else {
-                s3Prefix = "s3://" + getObjectRequest.getBucketName() + "/" + getObjectRequest.getPrefix();
+                s3Prefix = "s3://" + listObjectsRequest.getBucketName() + "/" + listObjectsRequest.getPrefix();
             }
+        }
+        else if (request instanceof ListObjectsV2Request) {
+            ListObjectsV2Request listObjectsRequest = (ListObjectsV2Request) request;
+            if (listObjectsRequest.getPrefix() == null) {
+                s3Prefix = "s3://" + listObjectsRequest.getBucketName();
+            } else {
+                s3Prefix = "s3://" + listObjectsRequest.getBucketName() + "/" + listObjectsRequest.getPrefix();
+            }
+        }
+        else if (request instanceof PutObjectRequest) {
+            PutObjectRequest putObjectRequest = (PutObjectRequest) request;
+            s3Prefix = "s3://" + putObjectRequest.getBucketName() + "/" +putObjectRequest.getKey();
+        }
+        else if (request instanceof DeleteObjectRequest) {
+            DeleteObjectRequest deleteObjectRequest = (DeleteObjectRequest) request;
+            s3Prefix = "s3://" + deleteObjectRequest.getBucketName() + "/" +deleteObjectRequest.getKey();
+            System.out.println(" prefix in delete object" +s3Prefix);
+        }
+        else if (request instanceof SetObjectAclRequest) {
+            SetObjectAclRequest setObjectAclRequest = (SetObjectAclRequest) request;
+            s3Prefix = "s3://" + setObjectAclRequest.getBucketName() + "/" +setObjectAclRequest.getKey();
+            System.out.println(" prefix in delete object" +s3Prefix);
+        }
+        else if (request instanceof GetObjectAclRequest) {
+            GetObjectAclRequest getObjectAclRequest = (GetObjectAclRequest) request;
+            s3Prefix = "s3://" + getObjectAclRequest.getBucketName() + "/" +getObjectAclRequest.getKey();
         }
         //Todo: Add details for rest of the requests
         return s3Prefix;

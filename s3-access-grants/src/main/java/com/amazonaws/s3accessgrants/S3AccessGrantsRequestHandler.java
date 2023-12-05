@@ -31,9 +31,8 @@ import com.amazonaws.s3accessgrants.internal.S3AccessGrantsUtils;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.GetCallerIdentityRequest;
-import com.amazonaws.services.securitytoken.model.GetCallerIdentityResult;
-import com.amazonaws.thirdparty.apache.logging.Log;
-import com.amazonaws.thirdparty.apache.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.assertj.core.util.VisibleForTesting;
 
 public class S3AccessGrantsRequestHandler {
@@ -193,7 +192,15 @@ public class S3AccessGrantsRequestHandler {
         return accountId;
     }
 
-    private AWSCredentials getCredentialsFromAccessGrants (Permission permission, String s3Prefix, String accountId) {
+    /**
+     * *
+     * @param permission Permission required to perform an operation
+     * @param s3Prefix s3Prefix of the bucket to get the credentials for
+     * @param accountId Account Id of the requester
+     * @return Credentials from Access Grants
+     */
+    @VisibleForTesting
+    AWSCredentials getCredentialsFromAccessGrants(Permission permission, String s3Prefix, String accountId) {
         return cacheImpl.getDataAccess(credentialsProvider.getCredentials(), permission, s3Prefix, accountId);
     }
 
