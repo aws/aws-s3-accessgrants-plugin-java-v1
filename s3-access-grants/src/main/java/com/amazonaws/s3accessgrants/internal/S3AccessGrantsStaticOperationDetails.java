@@ -53,10 +53,6 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("INITIATEMULTIPARTUPLOAD", Permission.WRITE);
         supportedAccessGrantsOperations.put("UPLOADPART", Permission.WRITE);
         supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOAD", Permission.WRITE);
-
-        supportedAccessGrantsOperations.put("DECRYPTREQUEST", Permission.READ);
-        supportedAccessGrantsOperations.put("GENERATEDATAKEYREQUEST", Permission.WRITE);
-
     }
 
     public Permission getPermission(String operation) throws AmazonServiceException {
@@ -161,8 +157,6 @@ public class S3AccessGrantsStaticOperationDetails {
                 s3Prefix = "s3://" + abortMultipartUploadRequest.getBucketName() + "/" + abortMultipartUploadRequest.getKey();
             }
         }
-
-        //Todo: Add details for rest of the requests
         return s3Prefix;
     }
 }
