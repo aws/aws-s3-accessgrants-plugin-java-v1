@@ -19,6 +19,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProviderImpl;
@@ -43,6 +44,7 @@ public class S3AccessGrantsRequestHandlerTest {
     public static final String SESSION_TOKEN = "sessionToken";
     private final S3AccessGrantsCachedCredentialsProviderImpl cachedCredentialsProvider = Mockito.mock(S3AccessGrantsCachedCredentialsProviderImpl.class);
     AWSCredentials accessGrantsCredentials = new BasicSessionCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, SESSION_TOKEN);
+    BasicAWSCredentials basicAWSCredentials= new BasicAWSCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY);
     private final AWSCredentialsProvider credentialsProvider = Mockito.mock(AWSCredentialsProvider.class);
     private final AWSSecurityTokenService stsClient = Mockito.mock(AWSSecurityTokenService.class);
     S3AccessGrantsRequestHandler requestHandler;
@@ -64,6 +66,7 @@ public class S3AccessGrantsRequestHandlerTest {
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
         when(stsClient.getCallerIdentity(any(GetCallerIdentityRequest.class))).thenReturn(result);
+        when(credentialsProvider.getCredentials()).thenReturn(basicAWSCredentials);
         when(cachedCredentialsProvider.getDataAccess(any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
                 .thenReturn(accessGrantsCredentials);
         //Then
