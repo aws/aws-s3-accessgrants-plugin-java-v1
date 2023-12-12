@@ -169,7 +169,7 @@ public class S3AccessGrantsRequestHandler {
      * @return if to return original credentials set by customer
      */
     @VisibleForTesting
-    Boolean shouldFallbackToDefaultCredentialsForThisCase(Throwable cause) {
+    boolean shouldFallbackToDefaultCredentialsForThisCase(Throwable cause) {
         if(enableFallback) {
             logger.debug(" Fall back enabled on the plugin! falling back to evaluate permission through policies!");
             return true;

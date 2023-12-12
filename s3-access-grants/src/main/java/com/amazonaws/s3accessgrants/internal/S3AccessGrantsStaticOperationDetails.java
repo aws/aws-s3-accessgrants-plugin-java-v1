@@ -50,9 +50,9 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("SETOBJECTACLREQUEST", Permission.WRITE); 
         supportedAccessGrantsOperations.put("DELETEOBJECTREQUEST", Permission.WRITE); 
         supportedAccessGrantsOperations.put("ABORTMULTIPARTUPLOADREQUEST", Permission.WRITE); 
-        supportedAccessGrantsOperations.put("INITIATEMULTIPARTUPLOAD", Permission.WRITE);
-        supportedAccessGrantsOperations.put("UPLOADPART", Permission.WRITE);
-        supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOAD", Permission.WRITE);
+        supportedAccessGrantsOperations.put("INITIATEMULTIPARTUPLOADREQUEST", Permission.WRITE);
+        supportedAccessGrantsOperations.put("UPLOADPARTREQUEST", Permission.WRITE);
+        supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOADREQUEST", Permission.WRITE);
     }
 
     public Permission getPermission(String operation) throws AmazonServiceException {
