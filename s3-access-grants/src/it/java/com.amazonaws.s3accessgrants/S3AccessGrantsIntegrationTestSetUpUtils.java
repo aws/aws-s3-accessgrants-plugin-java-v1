@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.s3accessgrants;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -6,7 +21,10 @@ import com.amazonaws.services.identitymanagement.model.EntityAlreadyExistsExcept
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.Permission;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,23 +34,17 @@ import java.util.Properties;
 public class S3AccessGrantsIntegrationTestSetUpUtils {
 
     private static AmazonS3 s3Client = null;
-
     private static AWSS3Control s3ControlClient = null;
-
     private static AmazonIdentityManagement iamClient = null;
-
     private static String accessGrantsInstanceLocationId = null;
-
     private static String accessGrantsArn = null;
-
     private static String policyArn = null;
-
     private static String iamRoleArn = null;
-
     private static List<String> registeredAccessGrants = new ArrayList<>();
+    private static final Log logger = LogFactory.getLog(S3AccessGrantsIntegrationTestSetUpUtils.class);
 
     public static void setUpAccessGrantsInstanceForTests() throws IOException, InterruptedException {
-        String defaultPropertiesFilePath = System.getProperty("user.dir")+"/default.properties";
+        String defaultPropertiesFilePath = String.join(File.separator, System.getProperty("user.dir"), "default.properties");
         Properties testProps = new Properties();
         testProps.load(new FileInputStream(defaultPropertiesFilePath));
         S3AccessGrantsIntegrationTestUtils.ACCESS_GRANTS_IAM_ROLE_NAME = testProps.getProperty("IamRoleName").trim();
@@ -150,14 +162,13 @@ public class S3AccessGrantsIntegrationTestSetUpUtils {
     public static void CreateAccessGrantsBucket(String bucketName) {
         try {
             S3AccessGrantsIntegrationTestUtils.createBucket(s3Client, bucketName);
-            System.out.println("Created the bucket " + bucketName);
+            logger.info("Created the bucket " + bucketName);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
         }
     }
 
     public static void tearDown() {
-
         registeredAccessGrants.forEach(accessGrantId -> {
             S3AccessGrantsIntegrationTestUtils.deleteAccessGrant( s3ControlClient, accessGrantId,
                     S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT);
