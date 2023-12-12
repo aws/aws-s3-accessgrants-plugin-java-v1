@@ -19,8 +19,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
-import com.amazonaws.thirdparty.apache.logging.Log;
-import com.amazonaws.thirdparty.apache.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.sun.istack.internal.NotNull;
 import org.assertj.core.util.VisibleForTesting;
 

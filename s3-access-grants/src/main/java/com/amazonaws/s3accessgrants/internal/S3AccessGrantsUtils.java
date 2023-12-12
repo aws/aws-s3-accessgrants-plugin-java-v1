@@ -15,8 +15,8 @@
 
 package com.amazonaws.s3accessgrants.internal;
 
-import com.amazonaws.thirdparty.apache.logging.Log;
-import com.amazonaws.thirdparty.apache.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.amazonaws.util.ValidationUtils;
 
 public class S3AccessGrantsUtils {
@@ -25,7 +25,7 @@ public class S3AccessGrantsUtils {
     private static final Log logger = LogFactory.getLog(S3AccessGrantsUtils.class);
 
     public static void argumentNotNull(Object param, String message) {
-        try{
+        try {
             ValidationUtils.assertNotNull(param, message);
         } catch (NullPointerException e) {
             logger.error(message);

@@ -24,8 +24,8 @@ import com.amazonaws.services.s3control.model.GetDataAccessRequest;
 import com.amazonaws.services.s3control.model.GetDataAccessResult;
 import com.amazonaws.services.s3control.model.Permission;
 import com.amazonaws.services.s3control.model.Privilege;
-import com.amazonaws.thirdparty.apache.logging.Log;
-import com.amazonaws.thirdparty.apache.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
@@ -201,7 +201,7 @@ public class S3AccessGrantsCache {
      * @return Access Grants Credentials.
      * @throws AWSS3ControlException throws Exception received from service.
      */
-    private GetDataAccessResult getCredentialsFromService(CacheKey cacheKey, String accountId, int duration) throws AWSS3ControlException{
+    private GetDataAccessResult getCredentialsFromService(CacheKey cacheKey, String accountId, int duration) throws AWSS3ControlException {
         String resolvedAccountId = s3AccessGrantsCachedAccountIdResolver.resolve(accountId, cacheKey.s3Prefix);
         logger.debug("Fetching credentials from Access Grants for accountId: " + resolvedAccountId + ", s3Prefix: " + cacheKey.s3Prefix +
                 ", permission: " + cacheKey.permission + ", privilege: " + Privilege.Default);
