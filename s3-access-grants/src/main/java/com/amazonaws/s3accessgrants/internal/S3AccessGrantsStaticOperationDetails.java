@@ -98,12 +98,10 @@ public class S3AccessGrantsStaticOperationDetails {
         else if (request instanceof DeleteObjectRequest) {
             DeleteObjectRequest deleteObjectRequest = (DeleteObjectRequest) request;
             s3Prefix = "s3://" + deleteObjectRequest.getBucketName() + "/" +deleteObjectRequest.getKey();
-            System.out.println(" prefix in delete object" +s3Prefix);
         }
         else if (request instanceof SetObjectAclRequest) {
             SetObjectAclRequest setObjectAclRequest = (SetObjectAclRequest) request;
             s3Prefix = "s3://" + setObjectAclRequest.getBucketName() + "/" +setObjectAclRequest.getKey();
-            System.out.println(" prefix in delete object" +s3Prefix);
         }
         else if (request instanceof GetObjectAclRequest) {
             GetObjectAclRequest getObjectAclRequest = (GetObjectAclRequest) request;
