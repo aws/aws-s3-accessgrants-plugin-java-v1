@@ -21,8 +21,8 @@ import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.istack.internal.NotNull;
 import org.assertj.core.util.VisibleForTesting;
+import javax.validation.constraints.NotNull;
 
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.CACHE_EXPIRATION_TIME_PERCENTAGE;
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE;

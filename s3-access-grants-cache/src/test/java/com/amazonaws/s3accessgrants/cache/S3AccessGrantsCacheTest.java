@@ -271,10 +271,12 @@ public class S3AccessGrantsCacheTest {
         String grant1 = "s3://bucket/foo/bar/*";
         String grant2 = "s3://bucket/foo/bar.txt";
         String grant3 = "s3://*";
+        String grant4 = "s3://bucket/foo*";
         // Then
         assertThat(cache.processMatchedGrantTarget(grant1)).isEqualTo("s3://bucket/foo/bar");
         assertThat(cache.processMatchedGrantTarget(grant2)).isEqualTo("s3://bucket/foo/bar.txt");
         assertThat(cache.processMatchedGrantTarget(grant3)).isEqualTo("s3:/");
+        assertThat(cache.processMatchedGrantTarget(grant4)).isEqualTo("s3://bucket/foo*");
     }
 
     @Test
