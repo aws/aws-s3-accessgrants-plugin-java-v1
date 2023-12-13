@@ -25,8 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import com.sun.istack.internal.NotNull;
 import org.assertj.core.util.VisibleForTesting;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.DEFAULT_ACCOUNT_ID_MAX_CACHE_SIZE;
