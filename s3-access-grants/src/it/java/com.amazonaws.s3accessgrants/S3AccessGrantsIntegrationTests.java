@@ -85,8 +85,8 @@ public class S3AccessGrantsIntegrationTests {
                 .withCredentials(profileCredentialsProvider)
                 .withRegion(Regions.US_EAST_2).build();
         operationDetails = new S3AccessGrantsStaticOperationDetails();
-        cachedCredentialsProvider = spy(S3AccessGrantsCachedCredentialsProviderImpl.builder().s3ControlClient(awsS3ControlClient).build());
-        requestHandler = spy(new S3AccessGrantsRequestHandler(fallback, profileCredentialsProvider,Regions.US_WEST_2, stsClient, cachedCredentialsProvider, operationDetails));
+        cachedCredentialsProvider = spy(S3AccessGrantsCachedCredentialsProviderImpl.builder().build());
+        requestHandler = spy(new S3AccessGrantsRequestHandler(awsS3ControlClient, fallback, profileCredentialsProvider,Regions.US_WEST_2, stsClient, cachedCredentialsProvider, operationDetails));
 
         s3Client = AmazonS3Client.builder().withRequestHandlers(new RequestHandler2() {
                     @Override
@@ -175,7 +175,7 @@ public class S3AccessGrantsIntegrationTests {
         //Then
         verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
         verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(Permission.class), any(String.class), any(String.class));
-        verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
+        verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
     }
 
 }

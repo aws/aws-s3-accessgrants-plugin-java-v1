@@ -25,6 +25,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProviderImpl;
 import com.amazonaws.s3accessgrants.internal.S3AccessGrantsStaticOperationDetails;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.Permission;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.model.GetCallerIdentityRequest;
@@ -47,6 +48,7 @@ public class S3AccessGrantsRequestHandlerTest {
     BasicAWSCredentials basicAWSCredentials= new BasicAWSCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY);
     private final AWSCredentialsProvider credentialsProvider = Mockito.mock(AWSCredentialsProvider.class);
     private final AWSSecurityTokenService stsClient = Mockito.mock(AWSSecurityTokenService.class);
+    private final AWSS3Control mockedS3ControlClient = Mockito.mock(AWSS3Control.class);
     S3AccessGrantsRequestHandler requestHandler;
     AmazonWebServiceRequest getObjectRequest;
     private final S3AccessGrantsStaticOperationDetails mockedOperationDetails = Mockito.mock(S3AccessGrantsStaticOperationDetails.class);
@@ -61,13 +63,13 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_resolveCredentials (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(true, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, operationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
         when(stsClient.getCallerIdentity(any(GetCallerIdentityRequest.class))).thenReturn(result);
         when(credentialsProvider.getCredentials()).thenReturn(basicAWSCredentials);
-        when(cachedCredentialsProvider.getDataAccess(any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
+        when(cachedCredentialsProvider.getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
                 .thenReturn(accessGrantsCredentials);
         //Then
         assertThat(requestHandler.resolve(getObjectRequest).getCredentials()).isEqualTo(accessGrantsCredentials);
@@ -76,14 +78,14 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test(expected = AmazonServiceException.class)
     public void accessGrantsRequestHandler_throwException_fallbackDisabled (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(false, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
         when(mockedOperationDetails.getOperation(any(String.class))).thenReturn("UnsupportedOperation");
         when(mockedOperationDetails.getPermission(any(String.class))).thenThrow(new AmazonServiceException(""));
         when(stsClient.getCallerIdentity(any(GetCallerIdentityRequest.class))).thenReturn(result);
-        when(cachedCredentialsProvider.getDataAccess(any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
+        when(cachedCredentialsProvider.getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
                 .thenReturn(accessGrantsCredentials);
         //Then
         requestHandler.resolve(getObjectRequest);
@@ -92,14 +94,14 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_fallbackToCredentialProviderCredentials (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(true, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
         when(mockedOperationDetails.getOperation(any(String.class))).thenReturn("UnsupportedOperation");
         when(mockedOperationDetails.getPermission(any(String.class))).thenThrow(new AmazonServiceException(""));
         when(stsClient.getCallerIdentity(any(GetCallerIdentityRequest.class))).thenReturn(result);
-        when(cachedCredentialsProvider.getDataAccess(any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
+        when(cachedCredentialsProvider.getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
                 .thenReturn(accessGrantsCredentials);
         //Then
         assertThat(requestHandler.resolve(getObjectRequest)).isEqualTo(credentialsProvider);
@@ -109,14 +111,14 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_unsupportedOperation_fallbackDisabled (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(false, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
         when(mockedOperationDetails.getOperation(any(String.class))).thenReturn("UnsupportedOperation");
         when(mockedOperationDetails.getPermission(any(String.class))).thenThrow(new AmazonServiceException("", new UnsupportedOperationException("")));
         when(stsClient.getCallerIdentity(any(GetCallerIdentityRequest.class))).thenReturn(result);
-        when(cachedCredentialsProvider.getDataAccess(any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
+        when(cachedCredentialsProvider.getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class), any(Permission.class), any(String.class), any(String.class)))
                 .thenReturn(accessGrantsCredentials);
         //Then
         assertThat(requestHandler.resolve(getObjectRequest)).isEqualTo(credentialsProvider);

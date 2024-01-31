@@ -61,18 +61,18 @@ public class S3AccessGrantsRequestHandler {
                 .withCredentials(credentialsProvider)
                 .build();
         this.cacheImpl = S3AccessGrantsCachedCredentialsProviderImpl.builder()
-                .s3ControlClient(awsS3ControlClient).duration(duration).build();
+                .duration(duration).build();
     }
 
     @VisibleForTesting
-    S3AccessGrantsRequestHandler(boolean enableFallback, AWSCredentialsProvider credentialsProvider, Regions region, AWSSecurityTokenService stsClient, S3AccessGrantsCachedCredentialsProviderImpl cacheImpl, S3AccessGrantsStaticOperationDetails operationDetails) {
+    S3AccessGrantsRequestHandler(AWSS3Control awsS3ControlClient, boolean enableFallback, AWSCredentialsProvider credentialsProvider, Regions region, AWSSecurityTokenService stsClient, S3AccessGrantsCachedCredentialsProviderImpl cacheImpl, S3AccessGrantsStaticOperationDetails operationDetails) {
         this.enableFallback = enableFallback;
         this.privilege = Privilege.Default;
         this.duration = 3600;
         this.credentialsProvider = credentialsProvider;
         this.region = region;
         this.stsClient = stsClient;
-        this.awsS3ControlClient = null;
+        this.awsS3ControlClient = awsS3ControlClient;
         this.cacheImpl = cacheImpl;
         this.operationDetails = operationDetails;
     }
@@ -201,7 +201,7 @@ public class S3AccessGrantsRequestHandler {
      */
     @VisibleForTesting
     AWSCredentials getCredentialsFromAccessGrants(Permission permission, String s3Prefix, String accountId) {
-        return cacheImpl.getDataAccess(credentialsProvider.getCredentials(), permission, s3Prefix, accountId);
+        return cacheImpl.getDataAccess(awsS3ControlClient, credentialsProvider.getCredentials(), permission, s3Prefix, accountId);
     }
 
 

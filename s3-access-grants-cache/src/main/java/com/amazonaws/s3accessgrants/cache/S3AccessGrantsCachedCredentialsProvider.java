@@ -16,6 +16,7 @@
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
 
@@ -27,6 +28,6 @@ public interface S3AccessGrantsCachedCredentialsProvider {
      * @return Credentials from Access Grants.
      * @throws AWSS3ControlException in-case exception is cached.
      */
-    AWSCredentials getDataAccess (AWSCredentials credentials, Permission permission, String s3Prefix,
-                                         String accountId) throws AWSS3ControlException;
+    AWSCredentials getDataAccess (AWSS3Control s3ControlClient, AWSCredentials credentials, Permission permission, String s3Prefix,
+                                  String accountId) throws AWSS3ControlException;
 }
