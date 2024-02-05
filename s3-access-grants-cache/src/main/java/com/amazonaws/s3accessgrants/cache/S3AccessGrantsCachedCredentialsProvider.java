@@ -16,6 +16,8 @@
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
@@ -30,4 +32,12 @@ public interface S3AccessGrantsCachedCredentialsProvider {
      */
     AWSCredentials getDataAccess (AWSS3Control s3ControlClient, AWSCredentials credentials, Permission permission, String s3Prefix,
                                   String accountId) throws AWSS3ControlException;
+
+    /**
+     * *
+     * @param s3Client used to make headBucket() call
+     * @param bucketName name of the bucket to get the region for
+     * @return Region the bucket is in
+     */
+    Regions getBucketRegion (AmazonS3 s3Client, String bucketName) ;
 }

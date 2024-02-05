@@ -16,6 +16,8 @@
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
@@ -33,6 +35,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
 
     private final S3AccessGrantsCache accessGrantsCache;
     private final S3AccessGrantsAccessDeniedCache s3AccessGrantsAccessDeniedCache;
+    private final S3AccessGrantsCachedBucketRegionResolver s3AccessGrantsCachedBucketRegionResolver;
     private static final Log logger = LogFactory.getLog(S3AccessGrantsCachedCredentialsProviderImpl.class);
 
     private S3AccessGrantsCachedCredentialsProviderImpl(int maxCacheSize, int cacheExpirationTimePercentage, int duration) {
@@ -44,6 +47,8 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
 
         s3AccessGrantsAccessDeniedCache = S3AccessGrantsAccessDeniedCache.builder()
                 .maxCacheSize(DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE).build();
+
+        s3AccessGrantsCachedBucketRegionResolver = S3AccessGrantsCachedBucketRegionResolver.builder().build();
     }
 
     @VisibleForTesting
@@ -57,6 +62,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
                 .buildWithAccountIdResolver();
         s3AccessGrantsAccessDeniedCache = S3AccessGrantsAccessDeniedCache.builder()
                 .maxCacheSize(DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE).build();
+        s3AccessGrantsCachedBucketRegionResolver = S3AccessGrantsCachedBucketRegionResolver.builder().build();
     }
 
     public static S3AccessGrantsCachedCredentialsProviderImpl.Builder builder() {
@@ -146,6 +152,11 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
             throw e;
         }
         return accessGrantsCredentials;
+    }
+
+    @Override
+    public Regions getBucketRegion (AmazonS3 s3Client, String bucket) {
+        return s3AccessGrantsCachedBucketRegionResolver.resolve(s3Client, bucket);
     }
 
     public void invalidateCache() {

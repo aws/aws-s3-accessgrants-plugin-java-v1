@@ -20,7 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.util.ValidationUtils;
 
 public class S3AccessGrantsUtils {
-    public static final Boolean DEFAULT_CACHE_SETTING = true;
+    public static final Boolean DEFAULT_FALLBACK = true;
+    public static final Boolean DEFAULT_CROSS_REGION_ACCESS = false;
     public static final int DEFAULT_DURATION = 3600;
     private static final Log logger = LogFactory.getLog(S3AccessGrantsUtils.class);
 

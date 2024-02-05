@@ -63,7 +63,7 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_resolveCredentials (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, operationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
@@ -78,7 +78,7 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test(expected = AmazonServiceException.class)
     public void accessGrantsRequestHandler_throwException_fallbackDisabled (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
@@ -94,7 +94,7 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_fallbackToCredentialProviderCredentials (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");
@@ -111,7 +111,7 @@ public class S3AccessGrantsRequestHandlerTest {
     @Test
     public void accessGrantsRequestHandler_unsupportedOperation_fallbackDisabled (){
         //Given
-        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, credentialsProvider, Regions.US_EAST_2,
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, false, false, credentialsProvider, Regions.US_EAST_2,
                 stsClient, cachedCredentialsProvider, mockedOperationDetails);
         //When
         GetCallerIdentityResult result = new GetCallerIdentityResult().withAccount("12345678910");

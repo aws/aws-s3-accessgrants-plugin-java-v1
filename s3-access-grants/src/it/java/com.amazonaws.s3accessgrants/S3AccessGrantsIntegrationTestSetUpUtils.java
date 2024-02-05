@@ -162,7 +162,7 @@ public class S3AccessGrantsIntegrationTestSetUpUtils {
     public static void CreateAccessGrantsBucket(String bucketName) {
         try {
             S3AccessGrantsIntegrationTestUtils.createBucket(s3Client, bucketName);
-            logger.info("Created the bucket " + bucketName);
+            logger.info("Created the bucket " + bucketName + " in region " + S3AccessGrantsIntegrationTestUtils.TEST_REGION);
         } catch (Exception e) {
             logger.info(e.getMessage());
         }

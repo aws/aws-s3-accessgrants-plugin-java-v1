@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.AmazonServiceException;
@@ -22,7 +37,6 @@ import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheCon
 public class S3AccessGrantsCachedBucketRegionResolver {
 
     private Cache<String, Regions> cache;
-    private AmazonS3 s3Client;
     private int maxCacheSize;
     private int expireCacheAfterWriteSeconds;
     private static final Log logger = LogFactory.getLog(S3AccessGrantsCachedBucketRegionResolver.class);
@@ -58,14 +72,14 @@ public class S3AccessGrantsCachedBucketRegionResolver {
         this.expireCacheAfterWriteSeconds = BUCKET_REGION_EXPIRE_CACHE_AFTER_WRITE_SECONDS;
     }
 
-    public Regions resolve(String bucket) throws AmazonS3Exception{
+    public Regions resolve(AmazonS3 s3Client, String bucket) throws AmazonS3Exception{
         Regions bucketRegion = cache.getIfPresent(bucket);
         if(bucketRegion == null) {
             logger.debug("bucket region not available in cache, fetching the region from the service!");
             if (s3Client == null) {
                 throw new IllegalArgumentException("S3Client is required for the bucket region resolver!");
             }
-            bucketRegion = resolveFromService(bucket);
+            bucketRegion = resolveFromService(s3Client, bucket);
             if(bucketRegion != null) {
                 cache.put(bucket, bucketRegion);
             }
@@ -76,10 +90,10 @@ public class S3AccessGrantsCachedBucketRegionResolver {
 
     }
 
-    private Regions resolveFromService(String bucket) {
+    private Regions resolveFromService(AmazonS3 s3Client, String bucket) {
         String resolvedRegion;
         try {
-            logger.info("Making a call to S3 for determining the bucket region."+bucket);
+            logger.info("Making a call to S3 for determining the bucket region.");
             HeadBucketRequest bucketLocationRequest = new HeadBucketRequest(bucket);
             HeadBucketResult headBucketResponse = s3Client.headBucket(bucketLocationRequest);
             resolvedRegion = headBucketResponse.getBucketRegion();
@@ -99,7 +113,6 @@ public class S3AccessGrantsCachedBucketRegionResolver {
     public interface Builder {
         S3AccessGrantsCachedBucketRegionResolver build();
         S3AccessGrantsCachedBucketRegionResolver.Builder maxCacheSize(int maxCacheSize);
-        S3AccessGrantsCachedBucketRegionResolver.Builder s3Client(AmazonS3 s3Client);
         S3AccessGrantsCachedBucketRegionResolver.Builder expireCacheAfterWriteSeconds(int expireCacheAfterWriteSeconds);
     }
 
@@ -107,24 +120,16 @@ public class S3AccessGrantsCachedBucketRegionResolver {
         private int maxCacheSize = BUCKET_REGION_CACHE_SIZE;
         private int expireCacheAfterWriteSeconds = BUCKET_REGION_EXPIRE_CACHE_AFTER_WRITE_SECONDS;
 
-        private AmazonS3 s3Client;
-
         private BuilderImpl() {
         }
 
         public BuilderImpl(S3AccessGrantsCachedBucketRegionResolver s3AccessGrantsCachedBucketRegionResolver) {
             maxCacheSize(s3AccessGrantsCachedBucketRegionResolver.maxCacheSize);
             expireCacheAfterWriteSeconds(s3AccessGrantsCachedBucketRegionResolver.expireCacheAfterWriteSeconds);
-            s3Client(s3AccessGrantsCachedBucketRegionResolver.s3Client);
         }
 
         public int maxCacheSize() {
             return maxCacheSize;
-        }
-
-        public AmazonS3 s3Client() {
-            if(s3Client == null) throw new IllegalArgumentException("S3 Client is required while configuring the S3 Bucket Region resolver!");
-            return s3Client;
         }
 
         public int expireCacheAfterWriteSeconds() {
@@ -142,13 +147,6 @@ public class S3AccessGrantsCachedBucketRegionResolver {
         }
 
         @Override
-        public S3AccessGrantsCachedBucketRegionResolver.Builder s3Client(AmazonS3 s3Client) {
-            if (s3Client == null)
-                throw new IllegalArgumentException("S3 Client is required while configuring the S3 Bucket Region resolver!");
-            this.s3Client = s3Client;
-            return this;
-        }
-        @Override
         public S3AccessGrantsCachedBucketRegionResolver.Builder expireCacheAfterWriteSeconds(int expireCacheAfterWriteSeconds) {
             if (expireCacheAfterWriteSeconds <= 0 || expireCacheAfterWriteSeconds > MAX_BUCKET_REGION_EXPIRE_CACHE_AFTER_WRITE_SECONDS) {
                 throw new IllegalArgumentException(String.format("expireCacheAfterWriteSeconds needs to be in range (0, %d]",
@@ -163,7 +161,6 @@ public class S3AccessGrantsCachedBucketRegionResolver {
             S3AccessGrantsCachedBucketRegionResolver resolver = new S3AccessGrantsCachedBucketRegionResolver();
             resolver.maxCacheSize = maxCacheSize();
             resolver.expireCacheAfterWriteSeconds = expireCacheAfterWriteSeconds();
-            resolver.s3Client = s3Client();
             resolver.cache = Caffeine.newBuilder()
                     .maximumSize(maxCacheSize)
                     .expireAfterWrite(Duration.ofSeconds(expireCacheAfterWriteSeconds))
