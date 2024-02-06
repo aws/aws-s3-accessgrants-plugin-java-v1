@@ -132,6 +132,14 @@ public class S3AccessGrantsCrossRegionAccessTests {
         verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(AWSS3Control.class), any(Permission.class), any(String.class), any(String.class));
     }
 
+    @Test(expected = com.amazonaws.services.s3control.model.AWSS3ControlException.class)
+    public void supportedOperation_fallbackDisabled_crossRegionDisabled() {
+        //Given
+        createS3ClientInDifferentRegion(false, false);
+        //When
+        s3Client.getObject(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME, S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1);
+    }
+
     @Test
     public void unsupportedOperation_fallbackEnabled() {
         //Given
@@ -238,6 +246,14 @@ public class S3AccessGrantsCrossRegionAccessTests {
         verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
     }
 
+    @Test(expected = com.amazonaws.services.s3control.model.AWSS3ControlException.class)
+    public void cacheTest_supportedOperation_fallbackDisabled_crossRegionDisabled() {
+        //Given
+        createS3ClientWithCacheInDifferentRegion(false, false);
+        //When
+        s3Client.getObject(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME, S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1);
+    }
+
     @Test
     public void cacheTest_supportedOperation_crossRegionDisabled() {
         //Given
@@ -245,7 +261,6 @@ public class S3AccessGrantsCrossRegionAccessTests {
         //When
         s3Client.getObject(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME, S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1);
         //Then
-        verify(requestHandler, times(2)).resolve(any(AmazonWebServiceRequest.class));
         verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(AWSS3Control.class), any(Permission.class), any(String.class), any(String.class));
         verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
     }

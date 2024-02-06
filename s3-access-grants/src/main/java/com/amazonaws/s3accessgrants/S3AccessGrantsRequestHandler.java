@@ -51,7 +51,7 @@ public class S3AccessGrantsRequestHandler {
     private S3AccessGrantsCachedCredentialsProviderImpl cacheImpl;
     private static final Log logger = LogFactory.getLog(S3AccessGrantsRequestHandler.class);
     private final boolean enableCrossRegionAccess;
-    ConcurrentHashMap<Regions, AWSS3Control> clientsCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Regions, AWSS3Control> clientsCache = new ConcurrentHashMap<>();
 
     private S3AccessGrantsRequestHandler(boolean enableFallback, Privilege privilege, int duration, AWSCredentialsProvider credentialsProvider, Regions region, Boolean enableCrossRegionAccess) {
         this.enableFallback = enableFallback;
@@ -79,6 +79,12 @@ public class S3AccessGrantsRequestHandler {
         this.cacheImpl = cacheImpl;
         this.operationDetails = operationDetails;
         this.enableCrossRegionAccess = enableCrossRegionAccess;
+    }
+
+    @VisibleForTesting
+    S3AccessGrantsRequestHandler(AWSS3Control awsS3ControlClient, boolean enableFallback, boolean enableCrossRegionAccess, AWSCredentialsProvider credentialsProvider, Regions region, AWSSecurityTokenService stsClient, S3AccessGrantsCachedCredentialsProviderImpl cacheImpl, S3AccessGrantsStaticOperationDetails operationDetails, ConcurrentHashMap<Regions, AWSS3Control> clientsCache) {
+        this(awsS3ControlClient,enableFallback, enableCrossRegionAccess, credentialsProvider, region, stsClient, cacheImpl, operationDetails);
+        this.clientsCache = clientsCache;
     }
 
     public static S3AccessGrantsRequestHandler.Builder builder() {
@@ -239,6 +245,7 @@ public class S3AccessGrantsRequestHandler {
      * @param s3Prefix 3Prefix of the bucket to get the credentials for
      * @return S3ControlClient for the region the bucket is in
      */
+    @VisibleForTesting
     AWSS3Control getS3ControlClientForRegion(AmazonS3 s3Client, String s3Prefix) {
         String bucketName = s3Prefix.split("/")[2];
         Regions region = cacheImpl.getBucketRegion(s3Client, bucketName);
@@ -252,6 +259,15 @@ public class S3AccessGrantsRequestHandler {
             clientsCache.put(region, s3ControlClient);
         }
         return s3ControlClient;
+    }
+
+    /**
+     * *
+     * @return map of S3ControlClients
+     */
+    @VisibleForTesting
+    ConcurrentHashMap<Regions, AWSS3Control> getClientsCache(){
+        return this.clientsCache;
     }
 
 }

@@ -24,6 +24,7 @@ import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProviderImpl;
 import com.amazonaws.s3accessgrants.internal.S3AccessGrantsStaticOperationDetails;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.Permission;
@@ -34,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.concurrent.ConcurrentHashMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -49,6 +51,7 @@ public class S3AccessGrantsRequestHandlerTest {
     private final AWSCredentialsProvider credentialsProvider = Mockito.mock(AWSCredentialsProvider.class);
     private final AWSSecurityTokenService stsClient = Mockito.mock(AWSSecurityTokenService.class);
     private final AWSS3Control mockedS3ControlClient = Mockito.mock(AWSS3Control.class);
+    private final AmazonS3 mockedS3Client = Mockito.mock(AmazonS3.class);
     S3AccessGrantsRequestHandler requestHandler;
     AmazonWebServiceRequest getObjectRequest;
     private final S3AccessGrantsStaticOperationDetails mockedOperationDetails = Mockito.mock(S3AccessGrantsStaticOperationDetails.class);
@@ -135,5 +138,31 @@ public class S3AccessGrantsRequestHandlerTest {
         requestHandler.getCallerAccountId();
     }
 
+    @Test
+    public void accessGrantsRequestHandler_getS3ControlClientForRegion_S3ControlClientPresentInMap (){
+        //Given
+        ConcurrentHashMap<Regions, AWSS3Control> clientsCache = new ConcurrentHashMap<>();
+        clientsCache.put(Regions.US_WEST_1, mockedS3ControlClient);
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, false, credentialsProvider, Regions.US_EAST_2,
+                stsClient, cachedCredentialsProvider, operationDetails, clientsCache);
+        String bucketName = "s3://test-bucket/prefixA";
+        //When
+        when(cachedCredentialsProvider.getBucketRegion(any(AmazonS3.class), any(String.class))).thenReturn(Regions.US_WEST_1);
+        //Then
+        assertThat(requestHandler.getS3ControlClientForRegion(mockedS3Client, bucketName)).isEqualTo(mockedS3ControlClient);
+    }
+
+    @Test
+    public void accessGrantsRequestHandler_getS3ControlClientForRegion_S3ControlClientNotPresentInMap (){
+        //Given
+        requestHandler = new S3AccessGrantsRequestHandler(mockedS3ControlClient, true, false, credentialsProvider, Regions.US_EAST_2,
+                stsClient, cachedCredentialsProvider, operationDetails);
+        String bucketName = "s3://test-bucket/prefixA";
+        //When
+        when(cachedCredentialsProvider.getBucketRegion(any(AmazonS3.class), any(String.class))).thenReturn(Regions.US_WEST_1);
+        //Then
+        requestHandler.getS3ControlClientForRegion(mockedS3Client, bucketName);
+        assertThat(requestHandler.getClientsCache().get(Regions.US_WEST_1)).isNotNull();
+    }
 
 }
