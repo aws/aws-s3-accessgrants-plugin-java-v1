@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.s3accessgrants;
+package com.amazonaws.s3accessgrants.plugin;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
@@ -22,14 +22,14 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProviderImpl;
-import com.amazonaws.s3accessgrants.internal.S3AccessGrantsStaticOperationDetails;
+import com.amazonaws.s3accessgrants.plugin.internal.S3AccessGrantsStaticOperationDetails;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.AWSS3ControlClientBuilder;
 import com.amazonaws.services.s3control.model.Permission;
 import com.amazonaws.services.s3control.model.Privilege;
-import com.amazonaws.s3accessgrants.internal.S3AccessGrantsUtils;
+import com.amazonaws.s3accessgrants.plugin.internal.S3AccessGrantsUtils;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.GetCallerIdentityRequest;

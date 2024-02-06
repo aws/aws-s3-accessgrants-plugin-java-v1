@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.s3accessgrants.internal;
+package com.amazonaws.s3accessgrants.plugin.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
