@@ -19,7 +19,6 @@ import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import org.assertj.core.util.VisibleForTesting;
 
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.ACCESS_DENIED_CACHE_SIZE;
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.MAX_LIMIT_ACCESS_GRANTS_MAX_CACHE_SIZE;
@@ -99,7 +98,6 @@ public class S3AccessGrantsAccessDeniedCache {
     /**
      * Invalidates the cache.
      */
-    @VisibleForTesting
     void invalidateCache() {
         cache.invalidateAll();
     }

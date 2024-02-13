@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import org.assertj.core.util.VisibleForTesting;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 
@@ -52,7 +51,6 @@ public class S3AccessGrantsCachedAccountIdResolver implements S3AccessGrantsAcco
 
     protected CacheStats getCacheStats() { return cache.stats(); }
 
-    @VisibleForTesting
     S3AccessGrantsCachedAccountIdResolver() {
         this.maxCacheSize = DEFAULT_ACCOUNT_ID_MAX_CACHE_SIZE;
         this.expireCacheAfterWriteSeconds = DEFAULT_ACCOUNT_ID_EXPIRE_CACHE_AFTER_WRITE_SECONDS;

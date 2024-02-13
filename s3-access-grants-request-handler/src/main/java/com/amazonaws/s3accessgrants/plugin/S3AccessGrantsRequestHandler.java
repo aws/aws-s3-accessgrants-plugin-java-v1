@@ -35,7 +35,6 @@ import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
 import com.amazonaws.services.securitytoken.model.GetCallerIdentityRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.assertj.core.util.VisibleForTesting;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,7 +66,6 @@ public class S3AccessGrantsRequestHandler {
         this.enableCrossRegionAccess = enableCrossRegionAccess;
     }
 
-    @VisibleForTesting
     S3AccessGrantsRequestHandler(AWSS3Control awsS3ControlClient, boolean enableFallback, boolean enableCrossRegionAccess, AWSCredentialsProvider credentialsProvider, Regions region, AWSSecurityTokenService stsClient, S3AccessGrantsCachedCredentialsProviderImpl cacheImpl, S3AccessGrantsStaticOperationDetails operationDetails) {
         this.enableFallback = enableFallback;
         this.privilege = Privilege.Default;
@@ -81,7 +79,6 @@ public class S3AccessGrantsRequestHandler {
         this.enableCrossRegionAccess = enableCrossRegionAccess;
     }
 
-    @VisibleForTesting
     S3AccessGrantsRequestHandler(AWSS3Control awsS3ControlClient, boolean enableFallback, boolean enableCrossRegionAccess, AWSCredentialsProvider credentialsProvider, Regions region, AWSSecurityTokenService stsClient, S3AccessGrantsCachedCredentialsProviderImpl cacheImpl, S3AccessGrantsStaticOperationDetails operationDetails, ConcurrentHashMap<Regions, AWSS3Control> clientsCache) {
         this(awsS3ControlClient,enableFallback, enableCrossRegionAccess, credentialsProvider, region, stsClient, cacheImpl, operationDetails);
         this.clientsCache = clientsCache;
@@ -165,7 +162,7 @@ public class S3AccessGrantsRequestHandler {
             Permission permission = operationDetails.getPermission(operation);
 
             if (enableCrossRegionAccess) {
-                logger.info("Cross region access enabled.");
+                logger.debug("Cross region access enabled.");
                 AmazonS3 s3Client = AmazonS3Client.builder().withRegion(region)
                         .withCredentials(credentialsProvider)
                         .withForceGlobalBucketAccessEnabled(true)
@@ -178,19 +175,19 @@ public class S3AccessGrantsRequestHandler {
                         .withRegion(region)
                         .withCredentials(credentialsProvider)
                         .build();
-
             }
-            logger.debug(" Calling S3 Access Grants with the following request params! ");
-            logger.debug("operation : " + operation);
-            logger.debug(" S3Prefix : " + s3Prefix);
+            logger.debug("Calling S3 Access Grants with the following request params! ");
+            logger.debug("Operation : " + operation);
+            logger.debug("S3Prefix : " + s3Prefix);
             String accountId = getCallerAccountId();
-            logger.debug(" caller accountID : " + accountId);
-            logger.debug(" permission : " + permission);
+            logger.debug("Caller accountID : " + accountId);
+            logger.debug("Permission : " + permission);
 
             AWSCredentials credentials = getCredentialsFromAccessGrants(awsS3ControlClient, permission, s3Prefix, accountId);
 
             return new AWSStaticCredentialsProvider(credentials);
         } catch (AmazonServiceException e) {
+            logger.debug(e);
             if (shouldFallbackToDefaultCredentialsForThisCase(e.getCause())) {
                 return credentialsProvider;
             }
@@ -203,7 +200,6 @@ public class S3AccessGrantsRequestHandler {
      * @param cause Cause of the exception
      * @return if to return original credentials set by customer
      */
-    @VisibleForTesting
     boolean shouldFallbackToDefaultCredentialsForThisCase(Throwable cause) {
         if(enableFallback) {
             logger.debug(" Fall back enabled on the plugin! falling back to evaluate permission through policies!");
@@ -220,7 +216,6 @@ public class S3AccessGrantsRequestHandler {
      * calls STS to get the caller identity
      * @return accountId of the caller
      */
-    @VisibleForTesting
     String getCallerAccountId() {
         String accountId = stsClient.getCallerIdentity(new GetCallerIdentityRequest()).getAccount();
         S3AccessGrantsUtils.argumentNotNull(accountId, "An internal exception has occurred. Expecting account Id to be specified for the request.");
@@ -234,7 +229,6 @@ public class S3AccessGrantsRequestHandler {
      * @param accountId Account Id of the requester
      * @return Credentials from Access Grants
      */
-    @VisibleForTesting
     AWSCredentials getCredentialsFromAccessGrants(AWSS3Control awsS3ControlClient, Permission permission, String s3Prefix, String accountId) {
         return cacheImpl.getDataAccess(awsS3ControlClient, credentialsProvider.getCredentials(), permission, s3Prefix, accountId);
     }
@@ -245,7 +239,6 @@ public class S3AccessGrantsRequestHandler {
      * @param s3Prefix 3Prefix of the bucket to get the credentials for
      * @return S3ControlClient for the region the bucket is in
      */
-    @VisibleForTesting
     AWSS3Control getS3ControlClientForRegion(AmazonS3 s3Client, String s3Prefix) {
         String bucketName = s3Prefix.split("/")[2];
         Regions region = cacheImpl.getBucketRegion(s3Client, bucketName);
@@ -265,7 +258,6 @@ public class S3AccessGrantsRequestHandler {
      * *
      * @return map of S3ControlClients
      */
-    @VisibleForTesting
     ConcurrentHashMap<Regions, AWSS3Control> getClientsCache(){
         return this.clientsCache;
     }
