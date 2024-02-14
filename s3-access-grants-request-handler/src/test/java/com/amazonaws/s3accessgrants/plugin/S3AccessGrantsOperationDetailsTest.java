@@ -13,14 +13,15 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.s3accessgrants;
+package com.amazonaws.s3accessgrants.plugin;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
-import com.amazonaws.s3accessgrants.internal.S3AccessGrantsStaticOperationDetails;
+import com.amazonaws.s3accessgrants.plugin.internal.S3AccessGrantsStaticOperationDetails;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3control.model.Permission;
 import org.junit.Test;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class S3AccessGrantsOperationDetailsTest {

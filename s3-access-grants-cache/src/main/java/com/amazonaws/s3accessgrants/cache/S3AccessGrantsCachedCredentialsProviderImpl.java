@@ -16,12 +16,13 @@
 package com.amazonaws.s3accessgrants.cache;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 import com.amazonaws.services.s3control.model.Permission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.assertj.core.util.VisibleForTesting;
 import javax.validation.constraints.NotNull;
 
 import static com.amazonaws.s3accessgrants.cache.internal.S3AccessGrantsCacheConstants.CACHE_EXPIRATION_TIME_PERCENTAGE;
@@ -33,26 +34,25 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
 
     private final S3AccessGrantsCache accessGrantsCache;
     private final S3AccessGrantsAccessDeniedCache s3AccessGrantsAccessDeniedCache;
+    private final S3AccessGrantsCachedBucketRegionResolver s3AccessGrantsCachedBucketRegionResolver;
     private static final Log logger = LogFactory.getLog(S3AccessGrantsCachedCredentialsProviderImpl.class);
 
-    private S3AccessGrantsCachedCredentialsProviderImpl(AWSS3Control s3ControlClient, int maxCacheSize, int cacheExpirationTimePercentage, int duration) {
+    private S3AccessGrantsCachedCredentialsProviderImpl(int maxCacheSize, int cacheExpirationTimePercentage, int duration) {
 
         accessGrantsCache = S3AccessGrantsCache.builder()
-                .s3ControlClient(s3ControlClient)
                 .maxCacheSize(maxCacheSize)
                 .duration(duration)
                 .cacheExpirationTimePercentage(cacheExpirationTimePercentage).build();
 
         s3AccessGrantsAccessDeniedCache = S3AccessGrantsAccessDeniedCache.builder()
                 .maxCacheSize(DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE).build();
+
+        s3AccessGrantsCachedBucketRegionResolver = S3AccessGrantsCachedBucketRegionResolver.builder().build();
     }
 
-    @VisibleForTesting
-    S3AccessGrantsCachedCredentialsProviderImpl(AWSS3Control s3ControlClient,
-                                                S3AccessGrantsCachedAccountIdResolver resolver,int maxCacheSize, int cacheExpirationTimePercentage, int duration) {
+    S3AccessGrantsCachedCredentialsProviderImpl(S3AccessGrantsCachedAccountIdResolver resolver,int maxCacheSize, int cacheExpirationTimePercentage, int duration) {
 
         accessGrantsCache = S3AccessGrantsCache.builder()
-                .s3ControlClient(s3ControlClient)
                 .maxCacheSize(maxCacheSize)
                 .cacheExpirationTimePercentage(cacheExpirationTimePercentage)
                 .s3AccessGrantsCachedAccountIdResolver(resolver)
@@ -60,6 +60,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
                 .buildWithAccountIdResolver();
         s3AccessGrantsAccessDeniedCache = S3AccessGrantsAccessDeniedCache.builder()
                 .maxCacheSize(DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE).build();
+        s3AccessGrantsCachedBucketRegionResolver = S3AccessGrantsCachedBucketRegionResolver.builder().build();
     }
 
     public static S3AccessGrantsCachedCredentialsProviderImpl.Builder builder() {
@@ -69,7 +70,6 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
     public interface Builder {
         S3AccessGrantsCachedCredentialsProviderImpl build();
         S3AccessGrantsCachedCredentialsProviderImpl buildWithAccountIdResolver();
-        S3AccessGrantsCachedCredentialsProviderImpl.Builder s3ControlClient(AWSS3Control s3ControlClient);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder s3AccessGrantsCachedAccountIdResolver(S3AccessGrantsCachedAccountIdResolver s3AccessGrantsCachedAccountIdResolver);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder maxCacheSize(int maxCacheSize);
         S3AccessGrantsCachedCredentialsProviderImpl.Builder cacheExpirationTimePercentage(int cacheExpirationTimePercentage);
@@ -77,7 +77,6 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
     }
 
     static final class BuilderImpl implements S3AccessGrantsCachedCredentialsProviderImpl.Builder {
-        private AWSS3Control s3ControlClient;
         private S3AccessGrantsCachedAccountIdResolver s3AccessGrantsCachedAccountIdResolver;
         private int maxCacheSize = DEFAULT_ACCESS_GRANTS_MAX_CACHE_SIZE;
         private int cacheExpirationTimePercentage = CACHE_EXPIRATION_TIME_PERCENTAGE;
@@ -88,18 +87,12 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
 
         @Override
         public S3AccessGrantsCachedCredentialsProviderImpl build() {
-            return new S3AccessGrantsCachedCredentialsProviderImpl(s3ControlClient, maxCacheSize, cacheExpirationTimePercentage, duration);
+            return new S3AccessGrantsCachedCredentialsProviderImpl(maxCacheSize, cacheExpirationTimePercentage, duration);
         }
 
         @Override
         public S3AccessGrantsCachedCredentialsProviderImpl buildWithAccountIdResolver() {
-            return new S3AccessGrantsCachedCredentialsProviderImpl(s3ControlClient, s3AccessGrantsCachedAccountIdResolver, maxCacheSize, cacheExpirationTimePercentage, duration);
-        }
-
-        @Override
-        public S3AccessGrantsCachedCredentialsProviderImpl.Builder s3ControlClient(AWSS3Control s3ControlClient) {
-            this.s3ControlClient = s3ControlClient;
-            return this;
+            return new S3AccessGrantsCachedCredentialsProviderImpl(s3AccessGrantsCachedAccountIdResolver, maxCacheSize, cacheExpirationTimePercentage, duration);
         }
 
         @Override
@@ -136,7 +129,7 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
     }
 
     @Override
-    public AWSCredentials getDataAccess (AWSCredentials credentials, Permission permission,
+    public AWSCredentials getDataAccess (AWSS3Control s3ControlClient, AWSCredentials credentials, Permission permission,
                                                 String s3Prefix, @NotNull String accountId) throws AWSS3ControlException {
 
         CacheKey cacheKey = CacheKey.builder()
@@ -152,11 +145,16 @@ public class S3AccessGrantsCachedCredentialsProviderImpl implements S3AccessGran
         }
         AWSCredentials accessGrantsCredentials;
         try {
-            accessGrantsCredentials = accessGrantsCache.getCredentials(cacheKey, accountId, s3AccessGrantsAccessDeniedCache);
+            accessGrantsCredentials = accessGrantsCache.getCredentials(s3ControlClient, cacheKey, accountId, s3AccessGrantsAccessDeniedCache);
         }catch (AWSS3ControlException e) {
             throw e;
         }
         return accessGrantsCredentials;
+    }
+
+    @Override
+    public Regions getBucketRegion (AmazonS3 s3Client, String bucket) {
+        return s3AccessGrantsCachedBucketRegionResolver.resolve(s3Client, bucket);
     }
 
     public void invalidateCache() {

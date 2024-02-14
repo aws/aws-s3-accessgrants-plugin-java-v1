@@ -45,7 +45,6 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
         s3ControlClient = Mockito.mock(AWSS3Control.class);
         resolver = S3AccessGrantsCachedAccountIdResolver
                 .builder()
-                .s3ControlClient(s3ControlClient)
                 .build();
     }
 
@@ -61,7 +60,7 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
         when(s3ControlClient.getAccessGrantsInstanceForPrefix(any(GetAccessGrantsInstanceForPrefixRequest.class)))
                 .thenReturn(response);
         // When
-        String accountId = resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
+        String accountId = resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
         // Then
         assertThat(accountId).isEqualTo(TEST_S3_ACCESSGRANTS_ACCOUNT);
         verify(s3ControlClient, times(1)).getAccessGrantsInstanceForPrefix(requestArgumentCaptor.capture());
@@ -79,8 +78,8 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
                 .withAccessGrantsInstanceArn(TEST_S3_ACCESSGRANTS_INSTANCE_ARN).withAccessGrantsInstanceId(TEST_S3_ACCESSGRANTS_INSTANCE_DEFAULT);
         when(s3ControlClient.getAccessGrantsInstanceForPrefix(any(GetAccessGrantsInstanceForPrefixRequest.class))).thenReturn(response);
         // When attempting to resolve same prefix back to back
-        String accountId1 = resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
-        String accountId2 = resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
+        String accountId1 = resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
+        String accountId2 = resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
         // Then
         assertThat(accountId1).isEqualTo(TEST_S3_ACCESSGRANTS_ACCOUNT);
         assertThat(accountId2).isEqualTo(TEST_S3_ACCESSGRANTS_ACCOUNT);
@@ -98,8 +97,8 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
                 .withAccessGrantsInstanceArn(TEST_S3_ACCESSGRANTS_INSTANCE_ARN).withAccessGrantsInstanceId(TEST_S3_ACCESSGRANTS_INSTANCE_DEFAULT);
         when(s3ControlClient.getAccessGrantsInstanceForPrefix(any(GetAccessGrantsInstanceForPrefixRequest.class))).thenReturn(response);
         // When attempting to resolve same prefix back to back
-        String accountId1 = resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
-        String accountId2 = resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX_2);
+        String accountId1 = resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX);
+        String accountId2 = resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX_2);
         // Then
         assertThat(accountId1).isEqualTo(TEST_S3_ACCESSGRANTS_ACCOUNT);
         assertThat(accountId2).isEqualTo(TEST_S3_ACCESSGRANTS_ACCOUNT);
@@ -113,7 +112,7 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
         when(s3ControlClient.getAccessGrantsInstanceForPrefix(any(GetAccessGrantsInstanceForPrefixRequest.class)))
                 .thenThrow(new AWSS3ControlException(""));
         // Then
-        assertThatThrownBy(() -> resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX)).isInstanceOf(AWSS3ControlException.class);
+        assertThatThrownBy(() -> resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX)).isInstanceOf(AWSS3ControlException.class);
 
     }
 
@@ -124,7 +123,7 @@ public class S3AccessGrantsCachedAccountIdResolverTest {
                 .withAccessGrantsInstanceArn("").withAccessGrantsInstanceId(TEST_S3_ACCESSGRANTS_INSTANCE_DEFAULT);
         when(s3ControlClient.getAccessGrantsInstanceForPrefix(any(GetAccessGrantsInstanceForPrefixRequest.class))).thenReturn(response);
         // Then
-        assertThatThrownBy(() -> resolver.resolve(TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX)).isInstanceOf(AWSS3ControlException.class);
+        assertThatThrownBy(() -> resolver.resolve(s3ControlClient, TEST_S3_ACCESSGRANTS_ACCOUNT, TEST_S3_PREFIX)).isInstanceOf(AWSS3ControlException.class);
     }
 
 }

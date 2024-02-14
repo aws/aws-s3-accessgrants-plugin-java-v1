@@ -15,6 +15,7 @@
 
 package com.amazonaws.s3accessgrants.cache;
 
+import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.model.AWSS3ControlException;
 
 public interface S3AccessGrantsAccountIdResolver {
@@ -25,5 +26,5 @@ public interface S3AccessGrantsAccountIdResolver {
      * @return AWS AccountId of the S3 Access Grants Instance that owns the location scope of the s3Prefix
      * @throws AWSS3ControlException propagate S3ControlException from service call
      */
-    String resolve(String accountId, String s3Prefix) throws AWSS3ControlException;
+    String resolve(AWSS3Control s3ControlClient, String accountId, String s3Prefix) throws AWSS3ControlException;
 }

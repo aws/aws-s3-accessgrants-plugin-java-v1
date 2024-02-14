@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.s3accessgrants;
+package com.amazonaws.s3accessgrants.plugin;
 
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.auth.AWSCredentials;
@@ -22,7 +22,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.handlers.RequestHandler2;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProviderImpl;
-import com.amazonaws.s3accessgrants.internal.S3AccessGrantsStaticOperationDetails;
+import com.amazonaws.s3accessgrants.plugin.internal.S3AccessGrantsStaticOperationDetails;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3control.AWSS3Control;
@@ -73,7 +73,6 @@ public class S3AccessGrantsIntegrationTests {
                 }).withRegion(Regions.US_WEST_2)
                 .withCredentials(profileCredentialsProvider)
                 .build();
-
     }
 
     public static void createS3ClientWithCache(boolean fallback){
@@ -85,8 +84,8 @@ public class S3AccessGrantsIntegrationTests {
                 .withCredentials(profileCredentialsProvider)
                 .withRegion(Regions.US_EAST_2).build();
         operationDetails = new S3AccessGrantsStaticOperationDetails();
-        cachedCredentialsProvider = spy(S3AccessGrantsCachedCredentialsProviderImpl.builder().s3ControlClient(awsS3ControlClient).build());
-        requestHandler = spy(new S3AccessGrantsRequestHandler(fallback, profileCredentialsProvider,Regions.US_WEST_2, stsClient, cachedCredentialsProvider, operationDetails));
+        cachedCredentialsProvider = spy(S3AccessGrantsCachedCredentialsProviderImpl.builder().build());
+        requestHandler = spy(new S3AccessGrantsRequestHandler(awsS3ControlClient, fallback, true, profileCredentialsProvider,Regions.US_WEST_2, stsClient, cachedCredentialsProvider, operationDetails));
 
         s3Client = AmazonS3Client.builder().withRequestHandlers(new RequestHandler2() {
                     @Override
@@ -116,7 +115,7 @@ public class S3AccessGrantsIntegrationTests {
         s3Client.getObject(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME, S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1);
         //Then
         verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
-        verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(Permission.class), any(String.class), any(String.class));
+        verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(AWSS3Control.class), any(Permission.class), any(String.class), any(String.class));
     }
 
     @Test
@@ -174,8 +173,8 @@ public class S3AccessGrantsIntegrationTests {
         s3Client.getObject(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME, S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1);
         //Then
         verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
-        verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(Permission.class), any(String.class), any(String.class));
-        verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
+        verify(requestHandler, times(1)).getCredentialsFromAccessGrants(any(AWSS3Control.class), any(Permission.class), any(String.class), any(String.class));
+        verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
     }
 
 }

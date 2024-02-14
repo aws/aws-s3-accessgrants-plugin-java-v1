@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.s3accessgrants;
+package com.amazonaws.s3accessgrants.plugin;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
@@ -49,6 +49,8 @@ import com.amazonaws.services.s3control.model.Grantee;
 import com.amazonaws.services.s3control.model.GranteeType;
 import com.amazonaws.services.s3control.model.ListAccessGrantsLocationsRequest;
 import com.amazonaws.services.s3control.model.ListAccessGrantsLocationsResult;
+import com.amazonaws.services.s3control.model.ListAccessGrantsRequest;
+import com.amazonaws.services.s3control.model.ListAccessGrantsResult;
 import com.amazonaws.services.s3control.model.Permission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,7 +167,14 @@ public class S3AccessGrantsIntegrationTestUtils {
                     .withPermission(permission)
                     .withAccessGrantsLocationConfiguration(accessGrantsLocationConfiguration);
             return s3ControlClient.createAccessGrant(accessGrantRequest).getAccessGrantId();
-        } catch (Exception e) {
+        } catch (AWSS3ControlException e) {
+            if (e.getStatusCode() == 409){
+                logger.debug("Grant already exists");
+                ListAccessGrantsRequest request = new ListAccessGrantsRequest().withAccountId(accountId).withGranteeType(GranteeType.IAM)
+                        .withGranteeIdentifier(iamRoleArn);
+                ListAccessGrantsResult result = s3ControlClient.listAccessGrants(request);
+                return result.getAccessGrantsList().get(0).getAccessGrantId();
+            }
             logger.info(e.getMessage());
             throw e;
         }
