@@ -25,6 +25,7 @@ import com.amazonaws.s3accessgrants.cache.S3AccessGrantsCachedCredentialsProvide
 import com.amazonaws.s3accessgrants.plugin.internal.S3AccessGrantsStaticOperationDetails;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3control.AWSS3Control;
 import com.amazonaws.services.s3control.AWSS3ControlClientBuilder;
 import com.amazonaws.services.s3control.model.Permission;
@@ -177,4 +178,30 @@ public class S3AccessGrantsIntegrationTests {
         verify(cachedCredentialsProvider, times(1)).getDataAccess(any(AWSS3Control.class), any(AWSCredentials.class),any(Permission.class), any(String.class), any(String.class));
     }
 
+    @Test(expected = com.amazonaws.AmazonServiceException.class)
+    public void copyOperation_differentBuckets() {
+        //Given
+        createS3Client(false);
+        //When
+        CopyObjectRequest request = new CopyObjectRequest().withDestinationBucketName("bucket1").withDestinationKey("folder1")
+                .withSourceBucketName("bucket2").withSourceKey("folder2");
+        s3Client.copyObject(request);
+    }
+
+    @Test
+    public void copyOperation_sameBuckets() {
+        //Given
+        createS3Client(true);
+        //When
+        CopyObjectRequest request = new CopyObjectRequest().withSourceBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
+                .withSourceKey(S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1)
+                .withDestinationBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
+                .withDestinationKey(S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "/folder1/file3.txt");
+        s3Client.copyObject(request);
+        //Then
+        verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
+        // Clean up
+        S3AccessGrantsIntegrationTestUtils.deleteObject(s3Client, S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME,
+                S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "/folder1/file3.txt");
+    }
 }

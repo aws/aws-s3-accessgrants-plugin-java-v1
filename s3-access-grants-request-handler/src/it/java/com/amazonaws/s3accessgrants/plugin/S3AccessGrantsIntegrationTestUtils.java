@@ -60,7 +60,7 @@ public class S3AccessGrantsIntegrationTestUtils {
     public static Regions TEST_REGION = Regions.US_WEST_2;
     public static final String TEST_BUCKET_NAME = "access-grants-sdk-v1-test-bucket";
     public static final String TEST_BUCKET_NAME_NOT_REGISTERED = "access-grants-sdk-v1-test-bucket-not-registered";
-    public static final String TEST_LOCATION_1 = "PrefixA/prefixB/";
+    public static final String TEST_LOCATION_1 = "PrefixA/PrefixB/";
     public static final String TEST_LOCATION_2 = "PrefixA/";
     public static final String TEST_OBJECT1 = TEST_LOCATION_1+"file1.txt";
     public static final String TEST_OBJECT2 = TEST_LOCATION_2+"file2.txt";
