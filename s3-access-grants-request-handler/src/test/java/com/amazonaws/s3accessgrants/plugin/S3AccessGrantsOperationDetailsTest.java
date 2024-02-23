@@ -87,12 +87,12 @@ public class S3AccessGrantsOperationDetailsTest {
         keys1.add("A/B/C/log.txt");
         keys1.add("B/A/C/log.txt");
         keys1.add("C/A/B/log.txt");
-        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys1)).isEqualTo("");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys1)).isEqualTo("/*");
         ArrayList<String> keys2 = new ArrayList<>();
         keys2.add("ABC/A/B/C/log.txt");
         keys2.add("ABC/B/A/C/log.txt");
         keys2.add("ABC/C/A/B/log.txt");
-        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys2)).isEqualTo("/ABC");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys2)).isEqualTo("/ABC/*");
         ArrayList<String> keys3 = new ArrayList<>();
         keys3.add("ABC/A/B/C/log.txt");
         keys3.add("ABC/B/A/C/log.txt");
@@ -100,6 +100,6 @@ public class S3AccessGrantsOperationDetailsTest {
         keys3.add("XYZ/X/Y/Y/log.txt");
         keys3.add("XYZ/Y/X/Z/log.txt");
         keys3.add("XYZ/Z/X/Y/log.txt");
-        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys3)).isEqualTo("");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys3)).isEqualTo("/*");
     }
 }

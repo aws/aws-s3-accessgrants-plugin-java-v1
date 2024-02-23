@@ -191,7 +191,7 @@ public class S3AccessGrantsIntegrationTests {
     @Test
     public void copyOperation_sameBuckets() {
         //Given
-        createS3Client(true);
+        createS3Client(false);
         //When
         CopyObjectRequest request = new CopyObjectRequest().withSourceBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
                 .withSourceKey(S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1)
