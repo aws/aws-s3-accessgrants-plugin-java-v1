@@ -202,7 +202,7 @@ public class S3AccessGrantsStaticOperationDetails {
                 if (!i.startsWith(commonAncestor)){
                     int lastIndex = commonAncestor.lastIndexOf("/");
                     if (lastIndex == -1){
-                        return "/*";
+                        return "/";
                     }
                     commonAncestor = commonAncestor.substring(0, lastIndex);
                 } else {
@@ -210,6 +210,6 @@ public class S3AccessGrantsStaticOperationDetails {
                 }
             }
         }
-        return "/" + commonAncestor + "/*";
+        return "/" + commonAncestor + "/";
     }
 }
