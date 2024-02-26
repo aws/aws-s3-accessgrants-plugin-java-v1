@@ -183,9 +183,9 @@ public class S3AccessGrantsIntegrationTests {
         //Given
         createS3Client(false);
         //When
-        CopyObjectRequest request = new CopyObjectRequest().withDestinationBucketName("bucket1").withDestinationKey("folder1")
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest().withDestinationBucketName("bucket1").withDestinationKey("folder1")
                 .withSourceBucketName("bucket2").withSourceKey("folder2");
-        s3Client.copyObject(request);
+        s3Client.copyObject(copyObjectRequest);
     }
 
     @Test
@@ -193,11 +193,11 @@ public class S3AccessGrantsIntegrationTests {
         //Given
         createS3Client(false);
         //When
-        CopyObjectRequest request = new CopyObjectRequest().withSourceBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest().withSourceBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
                 .withSourceKey(S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1)
                 .withDestinationBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
                 .withDestinationKey(S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "/folder1/file3.txt");
-        s3Client.copyObject(request);
+        s3Client.copyObject(copyObjectRequest);
         //Then
         verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
         // Clean up

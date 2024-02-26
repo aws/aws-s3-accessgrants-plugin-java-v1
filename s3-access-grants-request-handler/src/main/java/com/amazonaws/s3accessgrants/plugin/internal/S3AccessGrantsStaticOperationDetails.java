@@ -174,22 +174,22 @@ public class S3AccessGrantsStaticOperationDetails {
         else if (request instanceof DeleteObjectsRequest) {
             DeleteObjectsRequest deleteObjectRequest = (DeleteObjectsRequest) request;
             List<DeleteObjectsRequest.KeyVersion> keyList = deleteObjectRequest.getKeys();
-            ArrayList<String> keys = new ArrayList<>();
+            ArrayList<String> objectKeysToDelete = new ArrayList<>();
             for (DeleteObjectsRequest.KeyVersion i : keyList) {
-                keys.add(i.getKey());
+                objectKeysToDelete.add(i.getKey());
             }
-            s3Prefix = "s3://" + deleteObjectRequest.getBucketName() + getCommonPrefixFromMultiplePrefixes(keys);
+            s3Prefix = "s3://" + deleteObjectRequest.getBucketName() + getCommonPrefixFromMultiplePrefixes(objectKeysToDelete);
         }
         else if (request instanceof CopyObjectRequest) {
             CopyObjectRequest copyObjectRequest = (CopyObjectRequest) request;
             if (!copyObjectRequest.getSourceBucketName().equals(copyObjectRequest.getDestinationBucketName())){
-                logger.debug("Paths in different buckets. Access Grants does not support this use-case.");
+                logger.debug("Source and destination buckets are different for copy request. Access Grants does not support this use-case.");
                 throw new AmazonServiceException("The requested operation cannot be completed!", new UnsupportedOperationException("Access Grants does not support the requested operation!"));
             } else {
-                ArrayList<String> keys = new ArrayList<>();
-                keys.add(copyObjectRequest.getSourceKey());
-                keys.add(copyObjectRequest.getDestinationKey());
-                s3Prefix = "s3://" + copyObjectRequest.getSourceBucketName() + getCommonPrefixFromMultiplePrefixes(keys);
+                ArrayList<String> keysList = new ArrayList<>();
+                keysList.add(copyObjectRequest.getSourceKey());
+                keysList.add(copyObjectRequest.getDestinationKey());
+                s3Prefix = "s3://" + copyObjectRequest.getSourceBucketName() + getCommonPrefixFromMultiplePrefixes(keysList);
             }
         }
         return s3Prefix;
