@@ -22,6 +22,8 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3control.model.Permission;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class S3AccessGrantsOperationDetailsTest {
@@ -77,5 +79,27 @@ public class S3AccessGrantsOperationDetailsTest {
         AmazonWebServiceRequest request = null;
         //Then
         operationDetails.getPath(request);
+    }
+
+    @Test
+    public void getCommonPrefixFromMultiplePrefixes() {
+        ArrayList<String> keys1 = new ArrayList<>();
+        keys1.add("A/B/C/log.txt");
+        keys1.add("B/A/C/log.txt");
+        keys1.add("C/A/B/log.txt");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys1)).isEqualTo("/*");
+        ArrayList<String> keys2 = new ArrayList<>();
+        keys2.add("ABC/A/B/C/log.txt");
+        keys2.add("ABC/B/A/C/log.txt");
+        keys2.add("ABC/C/A/B/log.txt");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys2)).isEqualTo("/ABC/*");
+        ArrayList<String> keys3 = new ArrayList<>();
+        keys3.add("ABC/A/B/C/log.txt");
+        keys3.add("ABC/B/A/C/log.txt");
+        keys3.add("ABC/C/A/B/log.txt");
+        keys3.add("XYZ/X/Y/Y/log.txt");
+        keys3.add("XYZ/Y/X/Z/log.txt");
+        keys3.add("XYZ/Z/X/Y/log.txt");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys3)).isEqualTo("/*");
     }
 }

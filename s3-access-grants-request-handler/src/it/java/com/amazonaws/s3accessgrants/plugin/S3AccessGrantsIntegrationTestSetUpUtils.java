@@ -74,12 +74,18 @@ public class S3AccessGrantsIntegrationTestSetUpUtils {
                 S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX,
                 Permission.READ, iamRoleArn,
                 S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
-        registeredAccessGrants.add(S3AccessGrantsIntegrationTestUtils.
-                registerAccessGrant(s3ControlClient, S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX,
-                        Permission.WRITE, iamRoleArn,
-                        S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
         registeredAccessGrants.add(S3AccessGrantsIntegrationTestUtils.registerAccessGrant(s3ControlClient,
-                S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX2, Permission.WRITE, iamRoleArn, S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
+                S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX,
+                Permission.WRITE, iamRoleArn,
+                S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
+        registeredAccessGrants.add(S3AccessGrantsIntegrationTestUtils.registerAccessGrant(s3ControlClient,
+                S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX,
+                Permission.READWRITE, iamRoleArn,
+                S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
+        registeredAccessGrants.add(S3AccessGrantsIntegrationTestUtils.registerAccessGrant(s3ControlClient,
+                S3AccessGrantsIntegrationTestUtils.ALLOWED_BUCKET_PREFIX2,
+                Permission.WRITE, iamRoleArn,
+                S3AccessGrantsIntegrationTestUtils.TEST_ACCOUNT, accessGrantsInstanceLocationId));
 
         S3AccessGrantsIntegrationTestUtils.putObject(s3Client, S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME,
                 S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1,

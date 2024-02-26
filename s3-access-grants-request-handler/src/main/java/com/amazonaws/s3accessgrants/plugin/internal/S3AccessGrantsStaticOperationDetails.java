@@ -19,8 +19,11 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GetObjectAclRequest;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.ListMultipartUploadsRequest;
@@ -31,20 +34,26 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.SetObjectAclRequest;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3control.model.Permission;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class S3AccessGrantsStaticOperationDetails {
 
     private static final HashMap<String, Permission> supportedAccessGrantsOperations =  new HashMap<>();
+    private static final Log logger = LogFactory.getLog(S3AccessGrantsStaticOperationDetails.class);
 
     static {
-        supportedAccessGrantsOperations.put("GETOBJECTREQUEST", Permission.READ); 
-        supportedAccessGrantsOperations.put("GETOBJECTACLREQUEST", Permission.READ); 
+        supportedAccessGrantsOperations.put("GETOBJECTREQUEST", Permission.READ);
+        supportedAccessGrantsOperations.put("GETOBJECTACLREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("LISTMULTIPARTUPLOADSREQUEST", Permission.READ); 
         supportedAccessGrantsOperations.put("LISTOBJECTSREQUEST", Permission.READ); 
-        supportedAccessGrantsOperations.put("LISTOBJECTSV2REQUEST", Permission.READ); 
+        supportedAccessGrantsOperations.put("LISTOBJECTSV2REQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("LISTVERSIONSREQUEST", Permission.READ);
+        supportedAccessGrantsOperations.put("GETOBJECTMETADATAREQUEST", Permission.READ);
 
         supportedAccessGrantsOperations.put("PUTOBJECTREQUEST", Permission.WRITE); 
         supportedAccessGrantsOperations.put("SETOBJECTACLREQUEST", Permission.WRITE); 
@@ -53,6 +62,9 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("INITIATEMULTIPARTUPLOADREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("UPLOADPARTREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOADREQUEST", Permission.WRITE);
+        supportedAccessGrantsOperations.put("DELETEOBJECTSREQUEST", Permission.WRITE);
+
+        supportedAccessGrantsOperations.put("COPYOBJECTREQUEST", Permission.READWRITE);
     }
 
     public Permission getPermission(String operation) throws AmazonServiceException {
@@ -155,6 +167,49 @@ public class S3AccessGrantsStaticOperationDetails {
                 s3Prefix = "s3://" + abortMultipartUploadRequest.getBucketName() + "/" + abortMultipartUploadRequest.getKey();
             }
         }
+        else if (request instanceof GetObjectMetadataRequest) {
+            GetObjectMetadataRequest getObjectMetadataRequest = (GetObjectMetadataRequest) request;
+                s3Prefix = "s3://" + getObjectMetadataRequest.getBucketName() + "/" + getObjectMetadataRequest.getKey();
+        }
+        else if (request instanceof DeleteObjectsRequest) {
+            DeleteObjectsRequest deleteObjectRequest = (DeleteObjectsRequest) request;
+            List<DeleteObjectsRequest.KeyVersion> keyList = deleteObjectRequest.getKeys();
+            ArrayList<String> objectKeysToDelete = new ArrayList<>();
+            for (DeleteObjectsRequest.KeyVersion i : keyList) {
+                objectKeysToDelete.add(i.getKey());
+            }
+            s3Prefix = "s3://" + deleteObjectRequest.getBucketName() + getCommonPrefixFromMultiplePrefixes(objectKeysToDelete);
+        }
+        else if (request instanceof CopyObjectRequest) {
+            CopyObjectRequest copyObjectRequest = (CopyObjectRequest) request;
+            if (!copyObjectRequest.getSourceBucketName().equals(copyObjectRequest.getDestinationBucketName())){
+                logger.debug("Source and destination buckets are different for copy request. Access Grants does not support this use-case.");
+                throw new AmazonServiceException("The requested operation cannot be completed!", new UnsupportedOperationException("Access Grants does not support the requested operation!"));
+            } else {
+                ArrayList<String> keysList = new ArrayList<>();
+                keysList.add(copyObjectRequest.getSourceKey());
+                keysList.add(copyObjectRequest.getDestinationKey());
+                s3Prefix = "s3://" + copyObjectRequest.getSourceBucketName() + getCommonPrefixFromMultiplePrefixes(keysList);
+            }
+        }
         return s3Prefix;
+    }
+
+    public String getCommonPrefixFromMultiplePrefixes(ArrayList<String> keys) {
+        String commonAncestor = keys.get(0);
+        for (String i : keys) {
+            while(!commonAncestor.equals("")) {
+                if (!i.startsWith(commonAncestor)){
+                    int lastIndex = commonAncestor.lastIndexOf("/");
+                    if (lastIndex == -1){
+                        return "/*";
+                    }
+                    commonAncestor = commonAncestor.substring(0, lastIndex);
+                } else {
+                    break;
+                }
+            }
+        }
+        return "/" + commonAncestor + "/*";
     }
 }
