@@ -196,12 +196,12 @@ public class S3AccessGrantsIntegrationTests {
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest().withSourceBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
                 .withSourceKey(S3AccessGrantsIntegrationTestUtils.TEST_OBJECT1)
                 .withDestinationBucketName(S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME)
-                .withDestinationKey(S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "/folder1/file3.txt");
+                .withDestinationKey(S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "folder1/file3.txt");
         s3Client.copyObject(copyObjectRequest);
         //Then
         verify(requestHandler, times(1)).resolve(any(AmazonWebServiceRequest.class));
         // Clean up
         S3AccessGrantsIntegrationTestUtils.deleteObject(s3Client, S3AccessGrantsIntegrationTestUtils.TEST_BUCKET_NAME,
-                S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "/folder1/file3.txt");
+                S3AccessGrantsIntegrationTestUtils.TEST_LOCATION_1 + "folder1/file3.txt");
     }
 }
