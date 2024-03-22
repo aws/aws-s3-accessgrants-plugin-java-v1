@@ -7,6 +7,27 @@
     <version>1.0</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>java-sdk-v1-s3-access-grants-plugin</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>The Amazon Web Services Java SDK v2 Plugin for S3 Access Grants. The plugin allows customers to integrate S3 Access grants as an additional permission layer on top of S3 calls.</description>
+    <url>https://github.com/aws/aws-s3-accessgrants-plugin-java-v1</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://aws.amazon.com/apache2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>amazonwebservices</id>
+            <organization>Amazon Web Services</organization>
+            <organizationUrl>https://aws.amazon.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <distributionManagement>
         <snapshotRepository>
