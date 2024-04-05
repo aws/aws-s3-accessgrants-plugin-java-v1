@@ -101,5 +101,10 @@ public class S3AccessGrantsOperationDetailsTest {
         keys3.add("XYZ/Y/X/Z/log.txt");
         keys3.add("XYZ/Z/X/Y/log.txt");
         assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys3)).isEqualTo("/");
+        ArrayList<String> keys4 = new ArrayList<>();
+        keys4.add("folder/path123/A/logs");
+        keys4.add("folder/path234/A/logs");
+        keys4.add("folder/path234/A/artifacts");
+        assertThat(operationDetails.getCommonPrefixFromMultiplePrefixes(keys4)).isEqualTo("/folder/path");
     }
 }
