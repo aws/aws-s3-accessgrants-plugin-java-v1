@@ -25,6 +25,7 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GetObjectAclRequest;
 import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.HeadBucketRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.ListMultipartUploadsRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -171,6 +172,10 @@ public class S3AccessGrantsStaticOperationDetails {
             GetObjectMetadataRequest getObjectMetadataRequest = (GetObjectMetadataRequest) request;
                 s3Prefix = "s3://" + getObjectMetadataRequest.getBucketName() + "/" + getObjectMetadataRequest.getKey();
         }
+        else if (request instanceof HeadBucketRequest) {
+            HeadBucketRequest headBucketRequest = (HeadBucketRequest) request;
+            s3Prefix = "s3://" + headBucketRequest.getBucketName();
+        }
         else if (request instanceof DeleteObjectsRequest) {
             DeleteObjectsRequest deleteObjectRequest = (DeleteObjectsRequest) request;
             List<DeleteObjectsRequest.KeyVersion> keyList = deleteObjectRequest.getKeys();
@@ -197,6 +202,7 @@ public class S3AccessGrantsStaticOperationDetails {
 
     public String getCommonPrefixFromMultiplePrefixes(ArrayList<String> keys) {
         String commonAncestor = keys.get(0);
+        String lastPrefix = "";
         for (String i : keys) {
             while(!commonAncestor.equals("")) {
                 if (!i.startsWith(commonAncestor)){
@@ -204,12 +210,26 @@ public class S3AccessGrantsStaticOperationDetails {
                     if (lastIndex == -1){
                         return "/";
                     }
+                    lastPrefix = commonAncestor.substring(lastIndex+1);
                     commonAncestor = commonAncestor.substring(0, lastIndex);
                 } else {
                     break;
                 }
             }
         }
-        return "/" + commonAncestor + "/";
+
+        String newCommonAncestor = commonAncestor + "/" + lastPrefix;
+        for (String i : keys) {
+            while(!lastPrefix.equals("")){
+                if (!i.startsWith(newCommonAncestor)){
+                    lastPrefix = lastPrefix.substring(0, lastPrefix.length()-1);
+                    newCommonAncestor = commonAncestor + "/" + lastPrefix;
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        return "/" + newCommonAncestor;
     }
 }
