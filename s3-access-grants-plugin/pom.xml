@@ -9,7 +9,7 @@
     <version>1.0</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>The Amazon Web Services Java SDK v2 Plugin for S3 Access Grants. The plugin allows customers to integrate S3 Access grants as an additional permission layer on top of S3 calls.</description>
+    <description>The Amazon Web Services Java SDK v1 Plugin for S3 Access Grants. The plugin allows customers to integrate S3 Access grants as an additional permission layer on top of S3 calls.</description>
     <url>https://github.com/aws/aws-s3-accessgrants-plugin-java-v1/tree/main/s3-access-grants-plugin</url>
 
     <properties>
