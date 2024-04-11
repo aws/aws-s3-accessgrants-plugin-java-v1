@@ -16,7 +16,6 @@
 
     <modules>
         <module>s3-access-grants-cache</module>
-        <module>s3-access-grants-request-handler</module>
         <module>s3-access-grants-plugin</module>
     </modules>
 
