@@ -9,7 +9,7 @@
     <version>1.0</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>The Amazon Web Services Java SDK v2 Cache for S3 Access Grants. The cache module integrates with the Amazon Web Services Java SDK v2 Plugin for S3 Access Grants to provide caching capabilities.</description>
+    <description>The Amazon Web Services Java SDK v1 Cache for S3 Access Grants. The cache module integrates with the Amazon Web Services Java SDK v1 Plugin for S3 Access Grants to provide caching capabilities.</description>
     <url>https://github.com/aws/aws-s3-accessgrants-plugin-java-v1/tree/main/s3-access-grants-cache</url>
 
     <properties>
