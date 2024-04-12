@@ -39,7 +39,7 @@ The recommended way to use the S3 ACCESS GRANTS PLUGIN for Java in your project 
 ```
  <dependency>
     <groupId>software.amazon.s3.accessgrants</groupId>
-    <artifactId>java-sdk-v1-s3-access-grants-plugin</artifactId>
+    <artifactId>aws-s3-accessgrants-java-sdk-v1-plugin</artifactId>
     <version>replace with latest version</version>
 </dependency>
 ```
@@ -49,6 +49,14 @@ Create a S3AccessGrantsRequestHandler object and set the following fields:
 S3AccessGrantsRequestHandler requestHandler = S3AccessGrantsRequestHandler.builder().enableFallback(fallback)
                 .region(Regions.US_WEST_2).credentialsProvider(credentialsProvider).build();
 ```
+enableFallback takes in a boolean value. Choose if you want to enable fallback.
+1. If enableFallback option is set to false we will fallback only in case the operation/API is not supported by Access Grants.
+2. If enableFallback is set to true then we will fall back every time we are not able to get the credentials from Access Grants, no matter the reason.
+
+While building S3AccessGrantsRequestHandler object you have to provide a credentialsProvider object which contains credentials that have access to get credentials from Access Grants. In case we fallback, these credentials will be used to make the API call.
+Note - We only support IAM credentials with this release.
+
+You also have to set a region while building the S3AccessGrantsRequestHandler object. This is the region the bucket is in.
 
 Build S3Client as follows: 
 ````
@@ -65,16 +73,7 @@ AmazonS3 s3Client = AmazonS3Client.builder().withRequestHandlers(new RequestHand
                     .build();
 ````
 
-Choose if you want to enable fallback.
-1. If enableFallback option is set to false we will fallback only in case the operation/API is not supported by Access Grants.
-2. If enableFallback is set to true then we will fall back every time we are not able to get the credentials from Access Grants, no matter the reason.
-
-While building S3AccessGrantsRequestHandler object you have to provide a credentialsProvider object which contains credentials that have access to get credentials from Access Grants. In case we fallback, these credentials will be used to make the API call.
-Note - We only support IAM credentials with this release.
-
-You also have to set a region while building the S3AccessGrantsRequestHandler object. This is the region the bucket is in. 
 In case you want to make a cross region request, you have to enable it as below. You also have to set withForceGlobalBucketAccessEnabled as true in your S3Client.
-
 ```
 S3AccessGrantsRequestHandler requestHandler = S3AccessGrantsRequestHandler.builder().enableFallback(fallback)
                 .enableCrossRegionAccess(true)
