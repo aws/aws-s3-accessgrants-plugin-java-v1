@@ -51,7 +51,7 @@ public class S3AccessGrantsIntegrationTests {
     static AWSS3Control awsS3ControlClient;
     static AWSSecurityTokenService stsClient;
     static S3AccessGrantsStaticOperationDetails operationDetails;
-    private String newBucketName = "access-grants-sdk-v1-test-bucket-test";
+    private String newBucketName = "access-grants-sdk-v1-test-bucket-test-" + S3AccessGrantsIntegrationTestUtils.randomSuffixGenerator(7);
 
     @BeforeClass
     public static void setup() throws IOException, InterruptedException {

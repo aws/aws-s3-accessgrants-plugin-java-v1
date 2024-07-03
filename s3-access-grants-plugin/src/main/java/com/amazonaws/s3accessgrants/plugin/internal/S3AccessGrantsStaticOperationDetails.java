@@ -30,6 +30,7 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.ListMultipartUploadsRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListPartsRequest;
 import com.amazonaws.services.s3.model.ListVersionsRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.SetObjectAclRequest;
@@ -55,7 +56,8 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("LISTOBJECTSV2REQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("LISTVERSIONSREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("GETOBJECTMETADATAREQUEST", Permission.READ);
-
+        supportedAccessGrantsOperations.put("HEADBUCKETREQUEST", Permission.READ);
+        supportedAccessGrantsOperations.put("LISTPARTSREQUEST", Permission.READ);
         supportedAccessGrantsOperations.put("PUTOBJECTREQUEST", Permission.WRITE); 
         supportedAccessGrantsOperations.put("SETOBJECTACLREQUEST", Permission.WRITE); 
         supportedAccessGrantsOperations.put("DELETEOBJECTREQUEST", Permission.WRITE); 
@@ -64,7 +66,6 @@ public class S3AccessGrantsStaticOperationDetails {
         supportedAccessGrantsOperations.put("UPLOADPARTREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("COMPLETEMULTIPARTUPLOADREQUEST", Permission.WRITE);
         supportedAccessGrantsOperations.put("DELETEOBJECTSREQUEST", Permission.WRITE);
-
         supportedAccessGrantsOperations.put("COPYOBJECTREQUEST", Permission.READWRITE);
     }
 
@@ -195,6 +196,14 @@ public class S3AccessGrantsStaticOperationDetails {
                 keysList.add(copyObjectRequest.getSourceKey());
                 keysList.add(copyObjectRequest.getDestinationKey());
                 s3Prefix = "s3://" + copyObjectRequest.getSourceBucketName() + getCommonPrefixFromMultiplePrefixes(keysList);
+            }
+        }
+        else if (request instanceof ListPartsRequest) {
+            ListPartsRequest listPartsRequest = (ListPartsRequest) request;
+            if (listPartsRequest.getKey() == null){
+                s3Prefix = "s3://" + listPartsRequest.getBucketName();
+            } else {
+                s3Prefix = "s3://" + listPartsRequest.getBucketName() + "/" + listPartsRequest.getKey();
             }
         }
         return s3Prefix;
