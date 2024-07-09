@@ -95,7 +95,7 @@ AmazonS3 s3Client = AmazonS3Client.builder().withRequestHandlers(new RequestHand
                     .build();
 ````
 
-### Cross-account support
+### Cross account support
 
 The plugin makes S3 HeadBucket request to determine bucket location.
 In case of cross account access S3 expects s3:ListBucket permission for the requesting account on the requested bucket. Please add the necessary permission for cross-account access.
