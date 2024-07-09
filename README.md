@@ -29,7 +29,7 @@ Linux:
 Windows:
 
 ```./mvnw.cmd clean install```
-### USING THE PLUGIN
+### Using the plugin
 
 ---
 
@@ -94,6 +94,12 @@ AmazonS3 s3Client = AmazonS3Client.builder().withRequestHandlers(new RequestHand
                     .withForceGlobalBucketAccessEnabled(true)
                     .build();
 ````
+
+### Cross-account support
+
+The plugin makes S3 HeadBucket request to determine bucket location.
+In case of cross account access S3 expects s3:ListBucket permission for the requesting account on the requested bucket. Please add the necessary permission for cross-account access.
+
 ### Notes
 * If cross-region access setting is turned on for either the S3 Client or the plugin (but not both), you might experience bucket region mismatch errors.
 * The plugin supports deleteObjects API and copyObject API which S3 Access Grants does not implicitly support. For these APIs we get the common prefix of all the object keys and find their common ancestor. If you have a grant present on the common ancestor, you will get Access Grants credentials based on that grant. For copyObject API the source and destination buckets should be same, since a grant cannot give access to multiple buckets.
