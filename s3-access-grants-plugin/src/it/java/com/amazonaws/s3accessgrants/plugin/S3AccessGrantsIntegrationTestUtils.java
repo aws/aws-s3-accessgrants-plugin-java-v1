@@ -288,7 +288,6 @@ public class S3AccessGrantsIntegrationTestUtils {
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         for (int i = 0; i < length; i++) {
             suffix = suffix + alphabet.charAt(r.nextInt(alphabet.length()));
-            System.out.println(suffix);
         }
         return suffix;
     }
