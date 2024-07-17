@@ -54,12 +54,13 @@ import com.amazonaws.services.s3control.model.ListAccessGrantsResult;
 import com.amazonaws.services.s3control.model.Permission;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import java.util.Random;
 
 public class S3AccessGrantsIntegrationTestUtils {
     public static String TEST_ACCOUNT;
     public static Regions TEST_REGION = Regions.US_WEST_2;
-    public static final String TEST_BUCKET_NAME = "access-grants-sdk-v1-test-bucket";
-    public static final String TEST_BUCKET_NAME_NOT_REGISTERED = "access-grants-sdk-v1-test-bucket-not-registered";
+    public static final String TEST_BUCKET_NAME = "access-grants-sdk-v1-test-bucket-" + randomSuffixGenerator(7);
+    public static final String TEST_BUCKET_NAME_NOT_REGISTERED = "access-grants-sdk-v1-test-bucket-not-registered-" + randomSuffixGenerator(7);
     public static final String TEST_LOCATION_1 = "PrefixA/PrefixB/";
     public static final String TEST_LOCATION_2 = "PrefixA/";
     public static final String TEST_OBJECT1 = TEST_LOCATION_1+"file1.txt";
@@ -279,6 +280,16 @@ public class S3AccessGrantsIntegrationTestUtils {
         } catch (Exception e) {
             logger.info("policy cannot be detached form the role during test teardown! "+e.getMessage());
         }
+    }
+
+    public static String randomSuffixGenerator(int length) {
+        String suffix = "";
+        Random r = new Random();
+        String alphabet = "abcdefghijklmnopqrstuvwxyz";
+        for (int i = 0; i < length; i++) {
+            suffix = suffix + alphabet.charAt(r.nextInt(alphabet.length()));
+        }
+        return suffix;
     }
 
 }
