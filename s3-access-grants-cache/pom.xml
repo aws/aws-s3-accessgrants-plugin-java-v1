@@ -6,7 +6,7 @@
 
     <groupId>software.amazon.s3.accessgrants</groupId>
     <artifactId>java-sdk-v1-s3-access-grants-cache</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>The Amazon Web Services Java SDK v1 Cache for S3 Access Grants. The cache module integrates with the Amazon Web Services Java SDK v1 Plugin for S3 Access Grants to provide caching capabilities.</description>
