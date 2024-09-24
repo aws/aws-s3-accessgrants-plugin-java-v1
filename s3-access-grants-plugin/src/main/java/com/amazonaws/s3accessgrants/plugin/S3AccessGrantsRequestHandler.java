@@ -17,6 +17,7 @@ package com.amazonaws.s3accessgrants.plugin;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -51,6 +52,7 @@ public class S3AccessGrantsRequestHandler {
     private static final Log logger = LogFactory.getLog(S3AccessGrantsRequestHandler.class);
     private final boolean enableCrossRegionAccess;
     private ConcurrentHashMap<Regions, AWSS3Control> clientsCache = new ConcurrentHashMap<>();
+    private ClientConfiguration clientConfiguration = new ClientConfiguration().withUserAgentPrefix("aws-s3-accessgrants-java-sdk-v1-plugin");
 
     private S3AccessGrantsRequestHandler(boolean enableFallback, Privilege privilege, int duration, AWSCredentialsProvider credentialsProvider, Regions region, Boolean enableCrossRegionAccess) {
         this.enableFallback = enableFallback;
@@ -60,7 +62,9 @@ public class S3AccessGrantsRequestHandler {
         this.region = region;
         this.stsClient = AWSSecurityTokenServiceClientBuilder.standard()
                 .withCredentials(credentialsProvider)
-                .withRegion(Regions.US_EAST_2).build();
+                .withRegion(Regions.US_EAST_2)
+                .withClientConfiguration(clientConfiguration)
+                .build();
         this.cacheImpl = S3AccessGrantsCachedCredentialsProviderImpl.builder()
                 .duration(duration).build();
         this.enableCrossRegionAccess = enableCrossRegionAccess;
@@ -173,6 +177,7 @@ public class S3AccessGrantsRequestHandler {
             else {
                 awsS3ControlClient = AWSS3ControlClientBuilder.standard()
                         .withRegion(region)
+                        .withClientConfiguration(clientConfiguration)
                         .withCredentials(credentialsProvider)
                         .build();
             }
@@ -247,6 +252,7 @@ public class S3AccessGrantsRequestHandler {
         if (s3ControlClient == null) {
             s3ControlClient = AWSS3ControlClientBuilder.standard()
                     .withRegion(region)
+                    .withClientConfiguration(clientConfiguration)
                     .withCredentials(credentialsProvider)
                     .build();
             clientsCache.put(region, s3ControlClient);
