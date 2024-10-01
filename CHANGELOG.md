@@ -1,3 +1,7 @@
+## 1.3.1 2024-10-01
+### Features
+* Update SDK versions to remove dependency on ion-java 
+
 ## 1.3.0 2024-09-23
 ### Features
 * Added user agent for internal clients.
